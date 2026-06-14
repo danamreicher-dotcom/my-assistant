@@ -8,6 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <title>Dana · Personal Assistant</title>
 <link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="icon.svg" />
 <style>
   :root{
     --bg:#fff5f9; --bg2:#ffffff; --card:#ffffff; --card2:#fff0f6;
@@ -24,11 +25,11 @@
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Heebo,Arial,sans-serif;
     background:radial-gradient(120% 80% at 50% 0%,#ffe3ef 0%,var(--bg) 55%);
     color:var(--ink);min-height:100vh;
-    padding:max(20px,env(safe-area-inset-top)) 18px calc(96px + env(safe-area-inset-bottom));
+    padding:max(20px,env(safe-area-inset-top)) 18px calc(100px + env(safe-area-inset-bottom));
     -webkit-font-smoothing:antialiased;
   }
   .wrap{max-width:480px;margin:0 auto}
-  header.top{display:flex;align-items:center;justify-content:space-between;margin:6px 2px 22px}
+  header.top{display:flex;align-items:center;justify-content:space-between;margin:6px 2px 20px}
   .hi{font-size:15px;color:var(--muted)}
   .hi b{color:var(--ink);font-weight:700}
   .date{font-size:13px;color:var(--muted)}
@@ -36,7 +37,11 @@
     background:linear-gradient(135deg,var(--rose),var(--gold));color:#fff;font-weight:800;font-size:18px;
     box-shadow:0 6px 16px -6px var(--rose-deep)}
 
-  /* hero cycle card */
+  .page{display:none;animation:fade .25s}
+  .page.active{display:block}
+  @keyframes fade{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
   .hero{background:linear-gradient(160deg,#fff 0%,var(--card2) 100%);border:1px solid var(--line);
     border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);position:relative;overflow:hidden}
   .hero .glow{position:absolute;inset:-40% -10% auto auto;width:240px;height:240px;border-radius:50%;
@@ -59,25 +64,54 @@
 
   .section-title{margin:26px 4px 12px;font-size:13px;letter-spacing:.04em;color:var(--muted);font-weight:700;text-transform:uppercase}
 
-  .advice{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;display:flex;gap:14px;align-items:flex-start;box-shadow:var(--shadow)}
+  .advice{padding:18px;display:flex;gap:14px;align-items:flex-start}
   .advice .em{font-size:26px;line-height:1}
   .advice .body h3{margin:0 0 4px;font-size:16px}
   .advice .body p{margin:0;color:var(--muted);font-size:14px;line-height:1.55}
 
-  /* modules grid */
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
-  .mod{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;min-height:96px;
-    display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;transition:.15s}
-  .mod:active{transform:scale(.97)}
-  .mod .ic{font-size:22px}
-  .mod .nm{font-weight:700;font-size:15px}
-  .mod .meta{font-size:12px;color:var(--muted)}
-  .mod{box-shadow:var(--shadow)}
-  .mod.soon{opacity:.7}
-  .mod.soon .meta{color:var(--sun-deep)}
+  .pad{padding:18px}
+  .pad h2{margin:0 0 4px;font-size:18px}
+  .pad .lead{margin:0 0 14px;color:var(--muted);font-size:13px}
+
+  /* chips */
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  .chip{border:1px solid var(--line);background:var(--card2);color:var(--ink);border-radius:999px;
+    padding:9px 13px;font-size:13px;font-weight:600;cursor:pointer;transition:.12s}
+  .chip.sel{background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;border-color:transparent}
+  .scale{display:flex;gap:8px;margin-top:6px}
+  .scale button{flex:1;border:1px solid var(--line);background:var(--card2);border-radius:14px;padding:10px 0;
+    font-size:22px;cursor:pointer;transition:.12s}
+  .scale button.sel{background:var(--card2);border-color:var(--rose-deep);transform:scale(1.06);
+    box-shadow:0 6px 14px -6px var(--rose-deep)}
+
+  textarea.f,input.f{width:100%;background:var(--card2);border:1px solid var(--line);color:var(--ink);
+    border-radius:14px;padding:13px;font-size:15px;font-family:inherit;margin-top:6px}
+  textarea.f{min-height:70px;resize:vertical}
+  label.f{display:block;font-size:13px;color:var(--muted);margin:16px 0 0;font-weight:600}
+
+  button.cta{margin-top:18px;width:100%;border:none;border-radius:16px;padding:15px;font-size:15px;font-weight:800;
+    color:#fff;background:linear-gradient(135deg,var(--rose),var(--rose-deep));cursor:pointer;
+    box-shadow:0 10px 22px -8px var(--rose-deep)}
+  button.cta:active{filter:brightness(.96)}
+  .ghost{background:#0000;color:var(--muted);border:1px solid var(--line);margin-top:10px;width:100%;
+    border-radius:14px;padding:12px;font-size:13px;cursor:pointer}
+
+  /* list items (notes / projects / log) */
+  .item{display:flex;align-items:center;gap:12px;padding:13px 14px;border-bottom:1px solid var(--line)}
+  .item:last-child{border-bottom:none}
+  .item .txt{flex:1;font-size:14px}
+  .item .txt small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+  .item .x{color:var(--muted);font-size:18px;cursor:pointer;padding:2px 6px;border-radius:8px}
+  .empty{padding:22px 16px;text-align:center;color:var(--muted);font-size:13px}
+  .addrow{display:flex;gap:8px;padding:12px}
+  .addrow input{flex:1;margin:0}
+  .addrow button{border:none;background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;
+    border-radius:12px;padding:0 18px;font-size:20px;font-weight:800;cursor:pointer}
+
+  .badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;
+    background:var(--card2);border:1px solid var(--line);color:var(--rose-deep)}
 
   /* timeline */
-  .timeline{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:8px 6px}
   .tl{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line)}
   .tl:last-child{border-bottom:none}
   .tl .dot{width:11px;height:11px;border-radius:50%;flex:0 0 auto}
@@ -87,34 +121,38 @@
   .tl.now{background:var(--card2);border-radius:14px}
   .tl .when{font-size:12px;color:var(--muted);font-weight:600}
 
-  button.cta{margin-top:14px;width:100%;border:none;border-radius:16px;padding:15px;font-size:15px;font-weight:800;
-    color:#fff;background:linear-gradient(135deg,var(--rose),var(--rose-deep));cursor:pointer;
-    box-shadow:0 10px 22px -8px var(--rose-deep)}
-  button.cta:active{filter:brightness(.95)}
-  .ghost{background:#0000;color:var(--muted);border:1px solid var(--line);margin-top:10px;width:100%;
-    border-radius:14px;padding:12px;font-size:13px;cursor:pointer}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+  .mod{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;min-height:92px;
+    display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;transition:.15s;box-shadow:var(--shadow)}
+  .mod:active{transform:scale(.97)}
+  .mod .ic{font-size:22px}
+  .mod .nm{font-weight:700;font-size:15px}
+  .mod .meta{font-size:12px;color:var(--muted)}
 
-  /* bottom nav */
+  .syncpill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;
+    padding:5px 11px;border-radius:999px;border:1px solid var(--line)}
+  .syncpill.off{color:var(--muted);background:var(--card2)}
+  .syncpill.on{color:var(--leaf-deep);background:#eaf7ee;border-color:#cdeed5}
+
   nav.tabbar{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:space-around;
     padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:#fffafce6;backdrop-filter:blur(14px);
-    border-top:1px solid var(--line)}
-  nav.tabbar a.active{color:var(--rose-deep)}
+    border-top:1px solid var(--line);z-index:20}
   nav.tabbar a{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--muted);
-    font-size:11px;text-decoration:none;font-weight:600}
+    font-size:11px;text-decoration:none;font-weight:600;cursor:pointer}
   nav.tabbar a.active{color:var(--rose-deep)}
   nav.tabbar a .i{font-size:20px}
 
-  /* modal */
   .modal{position:fixed;inset:0;background:#5a2f4733;backdrop-filter:blur(4px);display:none;align-items:flex-end;z-index:50}
   .modal.open{display:flex}
   .sheet{background:var(--bg2);border:1px solid var(--line);border-radius:24px 24px 0 0;width:100%;max-width:480px;
     margin:0 auto;padding:22px 20px calc(28px + env(safe-area-inset-bottom));animation:up .25s}
   @keyframes up{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
-  .sheet h2{margin:2px 0 16px;font-size:18px}
-  label.f{display:block;font-size:13px;color:var(--muted);margin:14px 0 6px}
-  input.f{width:100%;background:var(--card2);border:1px solid var(--line);color:var(--ink);
-    border-radius:12px;padding:13px;font-size:16px;font-family:inherit}
+  .sheet h2{margin:2px 0 6px;font-size:18px}
   .muted{color:var(--muted);font-size:12px;line-height:1.5}
+  .toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);
+    background:var(--ink);color:#fff;padding:11px 18px;border-radius:999px;font-size:13px;font-weight:600;
+    opacity:0;transition:.25s;z-index:60;pointer-events:none}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
@@ -127,72 +165,142 @@
     <div class="avatar">ד</div>
   </header>
 
-  <!-- HERO CYCLE -->
-  <section class="hero">
-    <div class="glow" id="heroGlow"></div>
-    <span class="phase-pill" id="phasePill">—</span>
-    <div class="ring-row">
-      <div class="ring">
-        <svg width="108" height="108" viewBox="0 0 108 108">
-          <circle cx="54" cy="54" r="47" fill="none" stroke="#ffe0ec" stroke-width="9"/>
-          <circle id="ringProg" cx="54" cy="54" r="47" fill="none" stroke="url(#g)" stroke-width="9"
-            stroke-linecap="round" stroke-dasharray="295" stroke-dashoffset="295"/>
-          <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stop-color="#e8a0b4"/><stop offset="1" stop-color="#e6c79a"/>
-          </linearGradient></defs>
-        </svg>
-        <div class="center"><div class="big" id="dayNum">–</div><div class="lbl">יום במחזור</div></div>
+  <!-- ============ HOME ============ -->
+  <div class="page active" id="page-home">
+    <section class="hero">
+      <div class="glow" id="heroGlow"></div>
+      <span class="phase-pill" id="phasePill">—</span>
+      <div class="ring-row">
+        <div class="ring">
+          <svg width="108" height="108" viewBox="0 0 108 108">
+            <circle cx="54" cy="54" r="47" fill="none" stroke="#ffe0ec" stroke-width="9"/>
+            <circle id="ringProg" cx="54" cy="54" r="47" fill="none" stroke="url(#g)" stroke-width="9"
+              stroke-linecap="round" stroke-dasharray="295" stroke-dashoffset="295"/>
+            <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#ff9fc4"/><stop offset="1" stop-color="#ffd9b0"/>
+            </linearGradient></defs>
+          </svg>
+          <div class="center"><div class="big" id="dayNum">–</div><div class="lbl">יום במחזור</div></div>
+        </div>
+        <div style="flex:1">
+          <h1 id="phaseTitle">—</h1>
+          <p class="sub" id="phaseSub">—</p>
+        </div>
       </div>
-      <div style="flex:1">
-        <h1 id="phaseTitle">—</h1>
-        <p class="sub" id="phaseSub">—</p>
-      </div>
+      <button class="cta" onclick="openSheet()">המחזור התחיל היום 🩸</button>
+    </section>
+
+    <div class="section-title">ההמלצה שלך להיום</div>
+    <div class="card advice">
+      <div class="em" id="adviceEm">💛</div>
+      <div class="body"><h3 id="adviceTitle">—</h3><p id="adviceText">—</p></div>
     </div>
 
-    <div class="stat-row">
-      <div class="stat"><div class="k">⚡ רמת אנרגיה</div><div class="v" id="energyVal">—</div></div>
-      <div class="stat"><div class="k">🥚 ביוץ צפוי</div><div class="v" id="ovVal">—</div></div>
-      <div class="stat"><div class="k">🌸 מחזור הבא</div><div class="v" id="nextVal">—</div></div>
-      <div class="stat"><div class="k">📍 חלון פורה</div><div class="v" id="fertVal">—</div></div>
+    <div class="section-title">איך את מרגישה היום?</div>
+    <div class="card pad" id="homeCheckin"></div>
+
+    <div class="section-title">העוזרת האישית שלך</div>
+    <div class="grid">
+      <div class="mod" onclick="go('today')"><div class="ic">✨</div><div><div class="nm">צ׳ק-אין יומי</div><div class="meta" id="modCheckMeta">—</div></div></div>
+      <div class="mod" onclick="go('today')"><div class="ic">📝</div><div><div class="nm">פתקים</div><div class="meta" id="modNotesMeta">—</div></div></div>
+      <div class="mod" onclick="go('projects')"><div class="ic">📋</div><div><div class="nm">פרויקטים</div><div class="meta" id="modProjMeta">—</div></div></div>
+      <div class="mod" onclick="go('cycle')"><div class="ic">🌙</div><div><div class="nm">מחזור</div><div class="meta">פעיל</div></div></div>
     </div>
-
-    <button class="cta" onclick="openSheet()">המחזור התחיל היום 🩸</button>
-  </section>
-
-  <!-- TODAY ADVICE -->
-  <div class="section-title">ההמלצה שלך להיום</div>
-  <div class="advice">
-    <div class="em" id="adviceEm">💛</div>
-    <div class="body"><h3 id="adviceTitle">—</h3><p id="adviceText">—</p></div>
   </div>
 
-  <!-- TIMELINE -->
-  <div class="section-title">המחזור שלך עכשיו</div>
-  <div class="timeline" id="timeline"></div>
-
-  <!-- MODULES -->
-  <div class="section-title">העוזרת האישית שלך</div>
-  <div class="grid">
-    <div class="mod" onclick="alert('המודול של המחזור פעיל למעלה ☝️')">
-      <div class="ic">🌙</div><div><div class="nm">מחזור ואנרגיה</div><div class="meta">פעיל</div></div>
-    </div>
-    <div class="mod soon"><div class="ic">📋</div><div><div class="nm">פרויקטים</div><div class="meta">בקרוב</div></div></div>
-    <div class="mod soon"><div class="ic">📝</div><div><div class="nm">פתקים</div><div class="meta">בקרוב</div></div></div>
-    <div class="mod soon"><div class="ic">🎬</div><div><div class="nm">תוכן ורילסים</div><div class="meta">בקרוב</div></div></div>
+  <!-- ============ CYCLE ============ -->
+  <div class="page" id="page-cycle">
+    <h2 style="margin:2px 4px 14px;font-size:20px">🌙 המחזור שלך</h2>
+    <section class="hero">
+      <div class="glow" id="heroGlow2"></div>
+      <span class="phase-pill" id="phasePill2">—</span>
+      <div class="ring-row">
+        <div class="ring">
+          <svg width="108" height="108" viewBox="0 0 108 108">
+            <circle cx="54" cy="54" r="47" fill="none" stroke="#ffe0ec" stroke-width="9"/>
+            <circle id="ringProg2" cx="54" cy="54" r="47" fill="none" stroke="url(#g)" stroke-width="9"
+              stroke-linecap="round" stroke-dasharray="295" stroke-dashoffset="295"/>
+          </svg>
+          <div class="center"><div class="big" id="dayNum2">–</div><div class="lbl">יום במחזור</div></div>
+        </div>
+        <div style="flex:1"><h1 id="phaseTitle2">—</h1><p class="sub" id="phaseSub2">—</p></div>
+      </div>
+      <div class="stat-row">
+        <div class="stat"><div class="k">⚡ אנרגיה</div><div class="v" id="energyVal">—</div></div>
+        <div class="stat"><div class="k">🥚 ביוץ צפוי</div><div class="v" id="ovVal">—</div></div>
+        <div class="stat"><div class="k">🌸 מחזור הבא</div><div class="v" id="nextVal">—</div></div>
+        <div class="stat"><div class="k">📍 חלון פורה</div><div class="v" id="fertVal">—</div></div>
+      </div>
+      <button class="cta" onclick="openSheet()">עדכון תאריך / אורך מחזור</button>
+    </section>
+    <div class="section-title">לאורך החודש</div>
+    <div class="card" id="timeline"></div>
   </div>
 
-  <button class="ghost" onclick="installHint()">📲 איך מתקינים את האפליקציה בטלפון?</button>
+  <!-- ============ TODAY (check-in + notes) ============ -->
+  <div class="page" id="page-today">
+    <h2 style="margin:2px 4px 14px;font-size:20px">✨ היום</h2>
+    <div class="card pad" id="fullCheckin"></div>
+    <div class="section-title">פתקים מהירים</div>
+    <div class="card">
+      <div class="addrow"><input class="f" id="noteInput" placeholder="מה בא לך לזכור?" /><button onclick="addNote()">+</button></div>
+      <div id="notesList"></div>
+    </div>
+    <div class="section-title">יומן הרגשה אחרון</div>
+    <div class="card" id="checkinLog"></div>
+  </div>
+
+  <!-- ============ PROJECTS ============ -->
+  <div class="page" id="page-projects">
+    <h2 style="margin:2px 4px 14px;font-size:20px">📋 פרויקטים</h2>
+    <div class="card">
+      <div class="addrow"><input class="f" id="projInput" placeholder="שם פרויקט חדש" /><button onclick="addProj()">+</button></div>
+      <div id="projList"></div>
+    </div>
+    <p class="muted" style="margin:14px 4px">טאפ על פרויקט כדי לשנות סטטוס: 💡 רעיון → 🚧 בעבודה → ✅ הושלם</p>
+  </div>
+
+  <!-- ============ SETTINGS ============ -->
+  <div class="page" id="page-settings">
+    <h2 style="margin:2px 4px 14px;font-size:20px">⚙️ הגדרות</h2>
+
+    <div class="section-title">המחזור</div>
+    <div class="card pad">
+      <p class="muted" style="margin:0 0 12px">תאריך תחילת מחזור: <b id="setStart">—</b> · אורך: <b id="setLen">—</b> ימים</p>
+      <button class="cta" style="margin:0" onclick="openSheet()">עריכת המחזור</button>
+    </div>
+
+    <div class="section-title">סנכרון בין הטלפון למחשב</div>
+    <div class="card pad">
+      <p style="margin:0 0 10px"><span class="syncpill off" id="syncStatus">⚪ לא מסונכרן</span></p>
+      <p class="muted" style="margin:0 0 12px">כדי שהטלפון והמחשב יראו את אותו המידע, מזינים כאן את פרטי החיבור לענן (Supabase) ואותו "קוד סנכרון" אישי בשני המכשירים.</p>
+      <label class="f">Supabase URL</label>
+      <input class="f" id="syncUrl" placeholder="https://xxxx.supabase.co" />
+      <label class="f">anon key</label>
+      <input class="f" id="syncKey" placeholder="eyJ..." />
+      <label class="f">קוד סנכרון אישי (אותו אחד בשני המכשירים)</label>
+      <input class="f" id="syncCode" placeholder="לדוגמה: dana-2026-moon" />
+      <button class="cta" onclick="saveSync()">הפעלת סנכרון</button>
+      <button class="ghost" onclick="pullNow()">משיכת המידע מהענן עכשיו</button>
+    </div>
+
+    <div class="section-title">כללי</div>
+    <div class="card">
+      <div class="item"><div class="txt">📲 הוספה למסך הבית</div><div class="x" onclick="installHint()">›</div></div>
+      <div class="item"><div class="txt">🌸 גרסה <small>Personal Assistant · v3</small></div></div>
+    </div>
+  </div>
 </div>
 
 <!-- bottom nav -->
 <nav class="tabbar">
-  <a class="active"><span class="i">🏠</span>בית</a>
-  <a><span class="i">🌙</span>מחזור</a>
-  <a><span class="i">✨</span>היום</a>
-  <a><span class="i">⚙️</span>הגדרות</a>
+  <a id="tab-home" class="active" onclick="go('home')"><span class="i">🏠</span>בית</a>
+  <a id="tab-cycle" onclick="go('cycle')"><span class="i">🌙</span>מחזור</a>
+  <a id="tab-today" onclick="go('today')"><span class="i">✨</span>היום</a>
+  <a id="tab-settings" onclick="go('settings')"><span class="i">⚙️</span>הגדרות</a>
 </nav>
 
-<!-- modal -->
+<!-- cycle edit modal -->
 <div class="modal" id="modal">
   <div class="sheet">
     <h2>עדכון המחזור</h2>
@@ -200,152 +308,295 @@
     <input class="f" type="date" id="inStart" />
     <label class="f">אורך מחזור ממוצע (ימים)</label>
     <input class="f" type="number" id="inLen" min="20" max="40" />
-    <button class="cta" style="margin-top:18px" onclick="saveCycle()">שמירה</button>
+    <button class="cta" onclick="saveCycle()">שמירה</button>
     <button class="ghost" onclick="closeSheet()">ביטול</button>
     <p class="muted" style="margin-top:14px">החיזוי לביוץ הוא הערכה (אורך מחזור פחות כ-14 יום) - מצוין לתכנון אנרגיה, לא אמין מספיק לתכנון/מניעת הריון.</p>
   </div>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
 const DAY = 86400000;
 const HE_MONTHS = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
 const HE_DAYS = ["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
+const SYMPTOMS = ["עייפות","כאבי בטן","רעב למתוק","רגישות","אנרגיה נמוכה","כאב ראש","נפיחות","מצב רוח טוב"];
+const MOODS = ["😞","😐","🙂","😊","😍"];
+const ENERGY = ["🪫","🔋","⚡","🔥"];
 
-// ---- data store (localStorage now; swaps to cloud sync later) ----
+/* ---------- data store (local) + optional cloud sync ---------- */
 const store = {
   get(){ try{return JSON.parse(localStorage.getItem('dana_assistant'))||{}}catch(e){return {}} },
-  set(d){ localStorage.setItem('dana_assistant', JSON.stringify(d)) }
+  set(d){ d._upd=Date.now(); localStorage.setItem('dana_assistant', JSON.stringify(d)); cloud.push(d); }
 };
-function todayStr(){
-  const t=new Date();
-  return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0');
-}
-function seed(){ return store.get(); }   // no personal data hardcoded; user sets cycle on first run
+const syncCfg = {
+  get(){ try{return JSON.parse(localStorage.getItem('dana_sync_cfg'))||null}catch(e){return null} },
+  set(c){ localStorage.setItem('dana_sync_cfg', JSON.stringify(c)); }
+};
+const cloud = {
+  on(){ const c=syncCfg.get(); return !!(c&&c.url&&c.key&&c.code); },
+  async push(d){
+    if(!this.on()) return;
+    const c=syncCfg.get();
+    try{ await fetch(c.url+'/rest/v1/rpc/save_state',{method:'POST',
+      headers:{'apikey':c.key,'Authorization':'Bearer '+c.key,'Content-Type':'application/json'},
+      body:JSON.stringify({p_code:c.code,p_data:d})}); }catch(e){}
+  },
+  async pull(){
+    if(!this.on()) return null;
+    const c=syncCfg.get();
+    try{
+      const r=await fetch(c.url+'/rest/v1/rpc/get_state',{method:'POST',
+        headers:{'apikey':c.key,'Authorization':'Bearer '+c.key,'Content-Type':'application/json'},
+        body:JSON.stringify({p_code:c.code})});
+      if(!r.ok) return null;
+      return await r.json();
+    }catch(e){ return null; }
+  }
+};
 
+function todayStr(){ const t=new Date();
+  return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0'); }
 function fmt(date){ return date.getDate()+" ב"+HE_MONTHS[date.getMonth()]; }
 function parse(s){ const [y,m,dd]=s.split('-').map(Number); return new Date(y,m-1,dd); }
 function startOfDay(d){ return new Date(d.getFullYear(),d.getMonth(),d.getDate()); }
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),1800); }
 
+/* ---------- cycle compute ---------- */
 function compute(){
-  const data = seed();
+  const data = store.get();
   if(!data.cycle) return null;
   const start = parse(data.cycle.start);
   const len = data.cycle.length;
   const today = startOfDay(new Date());
   let diff = Math.floor((today - start)/DAY);
-  // advance to current cycle if past period start
   let cycleStart = new Date(start);
   while(diff >= len){ cycleStart = new Date(cycleStart.getTime()+len*DAY); diff -= len; }
-  if(diff < 0){ diff = 0; }
-  const day = diff + 1;                 // 1-based day in cycle
-  const ovDay = len - 14;               // estimated ovulation day
+  if(diff < 0) diff = 0;
+  const day = diff + 1;
+  const ovDay = len - 14;
   const ovDate = new Date(cycleStart.getTime()+(ovDay-1)*DAY);
   const nextDate = new Date(cycleStart.getTime()+len*DAY);
   const fertStart = new Date(ovDate.getTime()-5*DAY);
-
   let phase;
   if(day<=5) phase='menstrual';
   else if(day < ovDay-1) phase='follicular';
   else if(day <= ovDay+1) phase='ovulation';
   else phase='luteal';
-
   return {day,len,ovDay,ovDate,nextDate,fertStart,fertEnd:ovDate,phase};
 }
-
 const PHASES = {
-  menstrual:{name:'מחזור · מנוחה',pill:'🌑 מחזור',color:'var(--rose-deep)',glow:'var(--rose)',
-    energy:'נמוכה',title:'ימי מנוחה',
+  menstrual:{pill:'🌑 מחזור',glow:'var(--rose)',energy:'נמוכה',title:'ימי מנוחה',
     sub:'אסטרוגן ופרוגסטרון בשפל. נורמלי להרגיש עייפה, מעוננת וברעב למתוק.',
     em:'🌑',adviceT:'תני לעצמך לנוח',
     adviceP:'רק משימות קלות ואדמיניסטרציה. בלי צילומים, השקות או החלטות גדולות. כן למתוק וכן למנוחה - זו לא חולשה, זה הגוף.'},
-  follicular:{name:'עלייה · יצירתיות',pill:'🌱 עלייה',color:'var(--leaf-deep)',glow:'var(--leaf)',
-    energy:'עולה',title:'האנרגיה חוזרת',
+  follicular:{pill:'🌱 עלייה',glow:'var(--leaf)',energy:'עולה',title:'האנרגיה חוזרת',
     sub:'אסטרוגן עולה - מוח חד יותר, מצב רוח טוב, רעב לרעיונות חדשים.',
     em:'🌱',adviceT:'זמן להתחיל דברים חדשים',
     adviceP:'הזמן הכי טוב לתכנון, רעיונות, התחלות יצירתיות וכתיבה. שימי כאן את כל מה שדורש מוח רענן.'},
-  ovulation:{name:'שיא · אנרגיה מלאה',pill:'☀️ שיא',color:'var(--sun-deep)',glow:'var(--sun)',
-    energy:'בשיא',title:'ימי הכוח שלך',
+  ovulation:{pill:'☀️ שיא',glow:'var(--sun)',energy:'בשיא',title:'ימי הכוח שלך',
     sub:'שיא אסטרוגן - ביטחון, כריזמה וחברותיות גבוהים. מרגישה הכי טוב.',
     em:'☀️',adviceT:'שימי כאן את הדברים הגדולים',
     adviceP:'הזמן המושלם לצילומים, השקות, פוסטים, מכירות ופגישות. כל מה שדורש ממך להיות "בחוץ" - תזמני להיום.'},
-  luteal:{name:'דעיכה · סיומים',pill:'🍂 דעיכה',color:'var(--gold)',glow:'var(--gold)',
-    energy:'יורדת',title:'זמן לסגור קצוות',
+  luteal:{pill:'🍂 דעיכה',glow:'var(--gold)',energy:'יורדת',title:'זמן לסגור קצוות',
     sub:'פרוגסטרון עולה ואז יורד. אנרגיה יורדת בהדרגה, לקראת הסוף PMS אפשרי.',
     em:'🍂',adviceT:'תסיימי, אל תתחילי',
     adviceP:'הכי טוב לעריכה, סיום פרויקטים קיימים ומשימות פרטניות. הימנעי מהתחייבויות חדשות לקראת סוף השלב.'}
 };
 
+/* ---------- navigation ---------- */
+function go(p){
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.getElementById('page-'+p)?.classList.add('active');
+  document.querySelectorAll('nav.tabbar a').forEach(a=>a.classList.remove('active'));
+  const tabId = (p==='projects')?'tab-home':'tab-'+p;
+  document.getElementById(tabId)?.classList.add('active');
+  window.scrollTo(0,0);
+  if(p==='today'){ renderToday(); }
+  if(p==='projects'){ renderProjects(); }
+  if(p==='settings'){ renderSettings(); }
+}
+
+/* ---------- render: cycle ---------- */
 function render(){
+  const now = new Date();
+  document.getElementById('todayDate').textContent = "יום "+HE_DAYS[now.getDay()]+", "+fmt(startOfDay(now));
   const c = compute();
-  if(!c){   // first run: no cycle set yet
-    document.getElementById('phaseTitle').textContent = 'בואי נגדיר את המחזור';
-    document.getElementById('phaseSub').textContent = 'הזיני את תאריך תחילת המחזור האחרון כדי שהעוזרת תתחיל לעבוד 🌸';
-    document.getElementById('phasePill').textContent = '🌸 התחלה';
-    document.getElementById('dayNum').textContent = '–';
+  if(!c){
+    document.getElementById('phaseTitle').textContent='בואי נגדיר את המחזור';
+    document.getElementById('phaseSub').textContent='הזיני את תאריך תחילת המחזור האחרון כדי שהעוזרת תתחיל לעבוד 🌸';
+    document.getElementById('phasePill').textContent='🌸 התחלה';
+    document.getElementById('dayNum').textContent='–';
+    document.getElementById('adviceTitle').textContent='ברוכה הבאה 💕';
+    document.getElementById('adviceText').textContent='ברגע שתגדירי את המחזור, אדע להגיד לך בכל יום מה הכי כדאי לעשות לפי האנרגיה שלך.';
     openSheet();
+    renderHomeCheckin(); renderModMetas();
     return;
   }
   const p = PHASES[c.phase];
-  const now = new Date();
-  document.getElementById('todayDate').textContent = "יום "+HE_DAYS[now.getDay()]+", "+fmt(startOfDay(now));
-
-  document.getElementById('dayNum').textContent = c.day;
-  document.getElementById('phasePill').textContent = p.pill;
-  document.getElementById('phaseTitle').textContent = p.title;
-  document.getElementById('phaseSub').textContent = p.sub;
-  document.getElementById('energyVal').textContent = p.energy;
-  document.getElementById('ovVal').textContent = "בערך "+fmt(c.ovDate);
-  document.getElementById('nextVal').textContent = "בערך "+fmt(c.nextDate);
-  document.getElementById('fertVal').textContent = fmt(c.fertStart)+" – "+fmt(c.fertEnd);
-  document.getElementById('heroGlow').style.background = p.glow;
-
-  // ring progress
-  const frac = Math.min(c.day/c.len,1);
-  document.getElementById('ringProg').style.strokeDashoffset = 295*(1-frac);
-
-  document.getElementById('adviceEm').textContent = p.em;
-  document.getElementById('adviceTitle').textContent = p.adviceT;
-  document.getElementById('adviceText').textContent = p.adviceP;
-
+  // home hero
+  document.getElementById('dayNum').textContent=c.day;
+  document.getElementById('phasePill').textContent=p.pill;
+  document.getElementById('phaseTitle').textContent=p.title;
+  document.getElementById('phaseSub').textContent=p.sub;
+  document.getElementById('heroGlow').style.background=p.glow;
+  document.getElementById('ringProg').style.strokeDashoffset=295*(1-Math.min(c.day/c.len,1));
+  document.getElementById('adviceEm').textContent=p.em;
+  document.getElementById('adviceTitle').textContent=p.adviceT;
+  document.getElementById('adviceText').textContent=p.adviceP;
+  // cycle page mirror
+  document.getElementById('dayNum2').textContent=c.day;
+  document.getElementById('phasePill2').textContent=p.pill;
+  document.getElementById('phaseTitle2').textContent=p.title;
+  document.getElementById('phaseSub2').textContent=p.sub;
+  document.getElementById('heroGlow2').style.background=p.glow;
+  document.getElementById('ringProg2').style.strokeDashoffset=295*(1-Math.min(c.day/c.len,1));
+  document.getElementById('energyVal').textContent=p.energy;
+  document.getElementById('ovVal').textContent="בערך "+fmt(c.ovDate);
+  document.getElementById('nextVal').textContent="בערך "+fmt(c.nextDate);
+  document.getElementById('fertVal').textContent=fmt(c.fertStart)+" – "+fmt(c.fertEnd);
   // timeline
   const order=['menstrual','follicular','ovulation','luteal'];
+  const ranges={menstrual:'ימים 1–5',follicular:'ימים 6–'+(c.ovDay-2),
+    ovulation:'ימים '+(c.ovDay-1)+'–'+(c.ovDay+1),luteal:'ימים '+(c.ovDay+2)+'–'+c.len};
   const tl=document.getElementById('timeline'); tl.innerHTML='';
-  const ranges={
-    menstrual:'ימים 1–5', follicular:'ימים 6–'+(c.ovDay-2),
-    ovulation:'ימים '+(c.ovDay-1)+'–'+(c.ovDay+1), luteal:'ימים '+(c.ovDay+2)+'–'+c.len
-  };
-  order.forEach(k=>{
-    const ph=PHASES[k];
-    const row=document.createElement('div');
+  order.forEach(k=>{const ph=PHASES[k];const row=document.createElement('div');
     row.className='tl'+(k===c.phase?' now':'');
-    row.innerHTML='<span class="dot" style="background:'+ph.glow+'"></span>'+
-      '<div class="txt"><div class="t">'+ph.pill+'</div><div class="d">'+ranges[k]+'</div></div>'+
-      (k===c.phase?'<span class="when">את כאן</span>':'');
-    tl.appendChild(row);
-  });
+    row.innerHTML='<span class="dot" style="background:'+ph.glow+'"></span><div class="txt"><div class="t">'+ph.pill+'</div><div class="d">'+ranges[k]+'</div></div>'+(k===c.phase?'<span class="when">את כאן</span>':'');
+    tl.appendChild(row);});
+  renderHomeCheckin(); renderModMetas();
 }
 
-// ---- modal ----
-function openSheet(){
-  const d=seed();
-  document.getElementById('inStart').value = d.cycle ? d.cycle.start : todayStr();
-  document.getElementById('inLen').value = d.cycle ? d.cycle.length : 26;
-  document.getElementById('modal').classList.add('open');
+/* ---------- check-in ---------- */
+function getToday(){ const d=store.get(); return (d.checkins||[]).find(x=>x.date===todayStr()); }
+function checkinHTML(){
+  const t=getToday()||{mood:null,energy:null,symptoms:[],note:''};
+  let h='<div style="font-size:13px;color:var(--muted);margin-bottom:4px">מצב רוח</div><div class="scale">';
+  MOODS.forEach((m,i)=>h+='<button class="'+(t.mood===i?'sel':'')+'" onclick="setMood('+i+')">'+m+'</button>');
+  h+='</div><div style="font-size:13px;color:var(--muted);margin:14px 0 4px">אנרגיה</div><div class="scale">';
+  ENERGY.forEach((m,i)=>h+='<button class="'+(t.energy===i?'sel':'')+'" onclick="setEnergy('+i+')">'+m+'</button>');
+  h+='</div><div style="font-size:13px;color:var(--muted);margin:14px 0 4px">תחושות</div><div class="chips">';
+  SYMPTOMS.forEach(s=>h+='<span class="chip '+(t.symptoms.includes(s)?'sel':'')+'" onclick="toggleSym(\''+s+'\')">'+s+'</span>');
+  h+='</div>';
+  return h;
 }
-function closeSheet(){ document.getElementById('modal').classList.remove('open'); }
-function saveCycle(){
+function renderHomeCheckin(){ document.getElementById('homeCheckin').innerHTML=checkinHTML(); }
+function renderToday(){
+  document.getElementById('fullCheckin').innerHTML=
+    '<h2>איך את מרגישה היום?</h2><p class="lead">רישום יומי קצר - ככה העוזרת לומדת את הדפוסים שלך לאורך זמן.</p>'
+    +checkinHTML()
+    +'<label class="f">משהו להוסיף?</label><textarea class="f" id="noteToday" placeholder="מילה או שתיים על היום...">'+((getToday()||{}).note||'')+'</textarea>'
+    +'<button class="cta" onclick="saveNote()">שמירת ההרגשה</button>';
+  renderNotes(); renderLog();
+}
+function ensureToday(){
+  const d=store.get(); d.checkins=d.checkins||[];
+  let t=d.checkins.find(x=>x.date===todayStr());
+  if(!t){ t={date:todayStr(),mood:null,energy:null,symptoms:[],note:''}; d.checkins.unshift(t); }
+  return {d,t};
+}
+function setMood(i){ const {d,t}=ensureToday(); t.mood=i; store.set(d); refreshCheckins(); }
+function setEnergy(i){ const {d,t}=ensureToday(); t.energy=i; store.set(d); refreshCheckins(); }
+function toggleSym(s){ const {d,t}=ensureToday();
+  t.symptoms=t.symptoms||[];
+  const i=t.symptoms.indexOf(s); if(i>=0)t.symptoms.splice(i,1); else t.symptoms.push(s);
+  store.set(d); refreshCheckins(); }
+function saveNote(){ const {d,t}=ensureToday(); t.note=document.getElementById('noteToday').value; store.set(d);
+  toast('נשמר 💕'); renderLog(); }
+function refreshCheckins(){ renderHomeCheckin(); if(document.getElementById('page-today').classList.contains('active')){
+  document.getElementById('fullCheckin').innerHTML=
+    '<h2>איך את מרגישה היום?</h2><p class="lead">רישום יומי קצר - ככה העוזרת לומדת את הדפוסים שלך לאורך זמן.</p>'
+    +checkinHTML()
+    +'<label class="f">משהו להוסיף?</label><textarea class="f" id="noteToday" placeholder="מילה או שתיים על היום...">'+((getToday()||{}).note||'')+'</textarea>'
+    +'<button class="cta" onclick="saveNote()">שמירת ההרגשה</button>'; } }
+function renderLog(){
+  const d=store.get(); const logs=(d.checkins||[]).slice(0,7);
+  const el=document.getElementById('checkinLog');
+  if(!logs.length){ el.innerHTML='<div class="empty">עוד אין רישומים - מלאי את ההרגשה של היום ☝️</div>'; return; }
+  el.innerHTML=logs.map(l=>{
+    const dt=parse(l.date);
+    const sym=(l.symptoms||[]).slice(0,3).join(', ');
+    return '<div class="item"><div class="txt">'+(MOODS[l.mood]||'·')+' '+(ENERGY[l.energy]||'')+' <small>'+fmt(dt)+(sym?' · '+sym:'')+(l.note?' · '+l.note:'')+'</small></div></div>';
+  }).join('');
+}
+
+/* ---------- notes ---------- */
+function addNote(){ const inp=document.getElementById('noteInput'); const v=inp.value.trim(); if(!v)return;
+  const d=store.get(); d.notes=d.notes||[]; d.notes.unshift({id:Date.now(),text:v}); store.set(d); inp.value=''; renderNotes(); renderModMetas(); }
+function delNote(id){ const d=store.get(); d.notes=(d.notes||[]).filter(n=>n.id!==id); store.set(d); renderNotes(); renderModMetas(); }
+function renderNotes(){ const d=store.get(); const ns=d.notes||[]; const el=document.getElementById('notesList'); if(!el)return;
+  el.innerHTML=ns.length?ns.map(n=>'<div class="item"><div class="txt">'+n.text+'</div><div class="x" onclick="delNote('+n.id+')">✕</div></div>').join(''):'<div class="empty">אין פתקים עדיין</div>'; }
+
+/* ---------- projects ---------- */
+const PSTATUS=[{e:'💡',t:'רעיון'},{e:'🚧',t:'בעבודה'},{e:'✅',t:'הושלם'}];
+function addProj(){ const inp=document.getElementById('projInput'); const v=inp.value.trim(); if(!v)return;
+  const d=store.get(); d.projects=d.projects||[]; d.projects.unshift({id:Date.now(),name:v,status:0}); store.set(d); inp.value=''; renderProjects(); renderModMetas(); }
+function cycleProj(id){ const d=store.get(); const p=(d.projects||[]).find(x=>x.id===id); if(p){p.status=(p.status+1)%3; store.set(d); renderProjects();} }
+function delProj(id){ const d=store.get(); d.projects=(d.projects||[]).filter(p=>p.id!==id); store.set(d); renderProjects(); renderModMetas(); }
+function renderProjects(){ const d=store.get(); const ps=d.projects||[]; const el=document.getElementById('projList'); if(!el)return;
+  el.innerHTML=ps.length?ps.map(p=>'<div class="item"><span class="badge" onclick="cycleProj('+p.id+')">'+PSTATUS[p.status].e+' '+PSTATUS[p.status].t+'</span><div class="txt">'+p.name+'</div><div class="x" onclick="delProj('+p.id+')">✕</div></div>').join(''):'<div class="empty">אין פרויקטים עדיין - הוסיפי את הראשון ☝️</div>'; }
+
+/* ---------- module metas ---------- */
+function renderModMetas(){
   const d=store.get();
-  const start=document.getElementById('inStart').value;
-  const len=parseInt(document.getElementById('inLen').value)||26;
-  d.cycle={start,length:len}; store.set(d);
-  closeSheet(); render();
+  const t=getToday();
+  document.getElementById('modCheckMeta').textContent = t&&(t.mood!=null) ? 'מולא היום ✓' : 'לא מולא היום';
+  document.getElementById('modNotesMeta').textContent = ((d.notes||[]).length||0)+' פתקים';
+  document.getElementById('modProjMeta').textContent = ((d.projects||[]).length||0)+' פרויקטים';
 }
-function installHint(){
-  alert("להוספה למסך הבית:\n\niPhone (Safari): כפתור שיתוף ⬆️ → \"הוסף למסך הבית\"\nAndroid (Chrome): תפריט ⋮ → \"הוסף למסך הבית\"\n\nברגע שנחבר סנכרון לענן, האפליקציה והמחשב יראו את אותו המידע.");
+
+/* ---------- settings ---------- */
+function renderSettings(){
+  const d=store.get();
+  document.getElementById('setStart').textContent = d.cycle? fmt(parse(d.cycle.start)) : '—';
+  document.getElementById('setLen').textContent = d.cycle? d.cycle.length : '—';
+  const c=syncCfg.get();
+  if(c){ document.getElementById('syncUrl').value=c.url||''; document.getElementById('syncKey').value=c.key||''; document.getElementById('syncCode').value=c.code||''; }
+  const st=document.getElementById('syncStatus');
+  if(cloud.on()){ st.className='syncpill on'; st.textContent='🟢 מסונכרן'; }
+  else { st.className='syncpill off'; st.textContent='⚪ לא מסונכרן'; }
 }
+function saveSync(){
+  const url=document.getElementById('syncUrl').value.trim().replace(/\/$/,'');
+  const key=document.getElementById('syncKey').value.trim();
+  const code=document.getElementById('syncCode').value.trim();
+  if(!url||!key||!code){ toast('צריך למלא את שלושת השדות'); return; }
+  syncCfg.set({url,key,code});
+  store.set(store.get()); // push current data up
+  renderSettings(); toast('סנכרון הופעל 🟢');
+}
+async function pullNow(){
+  if(!cloud.on()){ toast('קודם הפעילי סנכרון'); return; }
+  toast('מושך מהענן...');
+  const remote=await cloud.pull();
+  if(remote && typeof remote==='object'){ localStorage.setItem('dana_assistant',JSON.stringify(remote)); render(); toast('המידע עודכן ✓'); }
+  else toast('אין עדיין מידע בענן');
+}
+
+/* ---------- cycle modal ---------- */
+function openSheet(){ const d=store.get();
+  document.getElementById('inStart').value=d.cycle?d.cycle.start:todayStr();
+  document.getElementById('inLen').value=d.cycle?d.cycle.length:26;
+  document.getElementById('modal').classList.add('open'); }
+function closeSheet(){ document.getElementById('modal').classList.remove('open'); }
+function saveCycle(){ const d=store.get();
+  d.cycle={start:document.getElementById('inStart').value,length:parseInt(document.getElementById('inLen').value)||26};
+  store.set(d); closeSheet(); render(); toast('עודכן 🌸'); }
+function installHint(){ alert("להוספה למסך הבית:\n\niPhone (Safari): כפתור שיתוף ⬆️ → \"הוסף למסך הבית\"\nAndroid (Chrome): תפריט ⋮ → \"הוסף למסך הבית\""); }
 document.getElementById('modal').addEventListener('click',e=>{ if(e.target.id==='modal') closeSheet(); });
 
-render();
+/* ---------- boot: pull from cloud if configured, then render ---------- */
+(async function boot(){
+  if(cloud.on()){
+    const remote=await cloud.pull();
+    const local=store.get();
+    if(remote && typeof remote==='object' && (remote._upd||0) >= (local._upd||0)){
+      localStorage.setItem('dana_assistant',JSON.stringify(remote));
+    } else if(local._upd){ cloud.push(local); }
+  }
+  render();
+})();
 if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(()=>{}); }
 </script>
 </body>
