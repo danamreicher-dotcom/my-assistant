@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#ffe3ef" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<title>Dana · Personal Assistant</title>
+<link rel="manifest" href="manifest.json" />
+<style>
+  :root{
+    --bg:#fff5f9; --bg2:#ffffff; --card:#ffffff; --card2:#fff0f6;
+    --ink:#5a2f47; --muted:#bd8aa3; --line:#ffd9e8;
+    --rose:#ff9fc4; --rose-deep:#f06aa1;
+    --gold:#ffd9b0; --sun:#ffcf8a; --sun-deep:#f0ab57;
+    --leaf:#c4ead0; --leaf-deep:#7cc497;
+    --sky:#bcd3f5;
+    --radius:24px; --shadow:0 14px 38px -14px #f7a8cb88;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Heebo,Arial,sans-serif;
+    background:radial-gradient(120% 80% at 50% 0%,#ffe3ef 0%,var(--bg) 55%);
+    color:var(--ink);min-height:100vh;
+    padding:max(20px,env(safe-area-inset-top)) 18px calc(96px + env(safe-area-inset-bottom));
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:480px;margin:0 auto}
+  header.top{display:flex;align-items:center;justify-content:space-between;margin:6px 2px 22px}
+  .hi{font-size:15px;color:var(--muted)}
+  .hi b{color:var(--ink);font-weight:700}
+  .date{font-size:13px;color:var(--muted)}
+  .avatar{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;
+    background:linear-gradient(135deg,var(--rose),var(--gold));color:#fff;font-weight:800;font-size:18px;
+    box-shadow:0 6px 16px -6px var(--rose-deep)}
+
+  /* hero cycle card */
+  .hero{background:linear-gradient(160deg,#fff 0%,var(--card2) 100%);border:1px solid var(--line);
+    border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .hero .glow{position:absolute;inset:-40% -10% auto auto;width:240px;height:240px;border-radius:50%;
+    filter:blur(50px);opacity:.4;background:var(--rose)}
+  .phase-pill{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:700;
+    padding:6px 13px;border-radius:999px;background:var(--card2);border:1px solid var(--line);color:var(--rose-deep)}
+  .ring-row{display:flex;align-items:center;gap:18px;margin:18px 0 6px}
+  .ring{position:relative;width:108px;height:108px;flex:0 0 auto}
+  .ring svg{transform:rotate(-90deg)}
+  .ring .center{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+  .ring .center .big{font-size:30px;font-weight:800;line-height:1}
+  .ring .center .lbl{font-size:11px;color:var(--muted);margin-top:3px}
+  .hero h1{margin:0 0 4px;font-size:21px;font-weight:800}
+  .hero p.sub{margin:0;color:var(--muted);font-size:14px;line-height:1.5}
+
+  .stat-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+  .stat{background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:14px}
+  .stat .k{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+  .stat .v{font-size:16px;font-weight:700;margin-top:5px}
+
+  .section-title{margin:26px 4px 12px;font-size:13px;letter-spacing:.04em;color:var(--muted);font-weight:700;text-transform:uppercase}
+
+  .advice{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;display:flex;gap:14px;align-items:flex-start;box-shadow:var(--shadow)}
+  .advice .em{font-size:26px;line-height:1}
+  .advice .body h3{margin:0 0 4px;font-size:16px}
+  .advice .body p{margin:0;color:var(--muted);font-size:14px;line-height:1.55}
+
+  /* modules grid */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+  .mod{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;min-height:96px;
+    display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;transition:.15s}
+  .mod:active{transform:scale(.97)}
+  .mod .ic{font-size:22px}
+  .mod .nm{font-weight:700;font-size:15px}
+  .mod .meta{font-size:12px;color:var(--muted)}
+  .mod{box-shadow:var(--shadow)}
+  .mod.soon{opacity:.7}
+  .mod.soon .meta{color:var(--sun-deep)}
+
+  /* timeline */
+  .timeline{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:8px 6px}
+  .tl{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line)}
+  .tl:last-child{border-bottom:none}
+  .tl .dot{width:11px;height:11px;border-radius:50%;flex:0 0 auto}
+  .tl .txt{flex:1}
+  .tl .txt .t{font-weight:700;font-size:14px}
+  .tl .txt .d{font-size:12px;color:var(--muted)}
+  .tl.now{background:var(--card2);border-radius:14px}
+  .tl .when{font-size:12px;color:var(--muted);font-weight:600}
+
+  button.cta{margin-top:14px;width:100%;border:none;border-radius:16px;padding:15px;font-size:15px;font-weight:800;
+    color:#fff;background:linear-gradient(135deg,var(--rose),var(--rose-deep));cursor:pointer;
+    box-shadow:0 10px 22px -8px var(--rose-deep)}
+  button.cta:active{filter:brightness(.95)}
+  .ghost{background:#0000;color:var(--muted);border:1px solid var(--line);margin-top:10px;width:100%;
+    border-radius:14px;padding:12px;font-size:13px;cursor:pointer}
+
+  /* bottom nav */
+  nav.tabbar{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:space-around;
+    padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:#fffafce6;backdrop-filter:blur(14px);
+    border-top:1px solid var(--line)}
+  nav.tabbar a.active{color:var(--rose-deep)}
+  nav.tabbar a{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--muted);
+    font-size:11px;text-decoration:none;font-weight:600}
+  nav.tabbar a.active{color:var(--rose-deep)}
+  nav.tabbar a .i{font-size:20px}
+
+  /* modal */
+  .modal{position:fixed;inset:0;background:#5a2f4733;backdrop-filter:blur(4px);display:none;align-items:flex-end;z-index:50}
+  .modal.open{display:flex}
+  .sheet{background:var(--bg2);border:1px solid var(--line);border-radius:24px 24px 0 0;width:100%;max-width:480px;
+    margin:0 auto;padding:22px 20px calc(28px + env(safe-area-inset-bottom));animation:up .25s}
+  @keyframes up{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
+  .sheet h2{margin:2px 0 16px;font-size:18px}
+  label.f{display:block;font-size:13px;color:var(--muted);margin:14px 0 6px}
+  input.f{width:100%;background:var(--card2);border:1px solid var(--line);color:var(--ink);
+    border-radius:12px;padding:13px;font-size:16px;font-family:inherit}
+  .muted{color:var(--muted);font-size:12px;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="hi">שלום, <b>דנה</b> 🌙</div>
+      <div class="date" id="todayDate"></div>
+    </div>
+    <div class="avatar">ד</div>
+  </header>
+
+  <!-- HERO CYCLE -->
+  <section class="hero">
+    <div class="glow" id="heroGlow"></div>
+    <span class="phase-pill" id="phasePill">—</span>
+    <div class="ring-row">
+      <div class="ring">
+        <svg width="108" height="108" viewBox="0 0 108 108">
+          <circle cx="54" cy="54" r="47" fill="none" stroke="#ffe0ec" stroke-width="9"/>
+          <circle id="ringProg" cx="54" cy="54" r="47" fill="none" stroke="url(#g)" stroke-width="9"
+            stroke-linecap="round" stroke-dasharray="295" stroke-dashoffset="295"/>
+          <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#e8a0b4"/><stop offset="1" stop-color="#e6c79a"/>
+          </linearGradient></defs>
+        </svg>
+        <div class="center"><div class="big" id="dayNum">–</div><div class="lbl">יום במחזור</div></div>
+      </div>
+      <div style="flex:1">
+        <h1 id="phaseTitle">—</h1>
+        <p class="sub" id="phaseSub">—</p>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><div class="k">⚡ רמת אנרגיה</div><div class="v" id="energyVal">—</div></div>
+      <div class="stat"><div class="k">🥚 ביוץ צפוי</div><div class="v" id="ovVal">—</div></div>
+      <div class="stat"><div class="k">🌸 מחזור הבא</div><div class="v" id="nextVal">—</div></div>
+      <div class="stat"><div class="k">📍 חלון פורה</div><div class="v" id="fertVal">—</div></div>
+    </div>
+
+    <button class="cta" onclick="openSheet()">המחזור התחיל היום 🩸</button>
+  </section>
+
+  <!-- TODAY ADVICE -->
+  <div class="section-title">ההמלצה שלך להיום</div>
+  <div class="advice">
+    <div class="em" id="adviceEm">💛</div>
+    <div class="body"><h3 id="adviceTitle">—</h3><p id="adviceText">—</p></div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="section-title">המחזור שלך עכשיו</div>
+  <div class="timeline" id="timeline"></div>
+
+  <!-- MODULES -->
+  <div class="section-title">העוזרת האישית שלך</div>
+  <div class="grid">
+    <div class="mod" onclick="alert('המודול של המחזור פעיל למעלה ☝️')">
+      <div class="ic">🌙</div><div><div class="nm">מחזור ואנרגיה</div><div class="meta">פעיל</div></div>
+    </div>
+    <div class="mod soon"><div class="ic">📋</div><div><div class="nm">פרויקטים</div><div class="meta">בקרוב</div></div></div>
+    <div class="mod soon"><div class="ic">📝</div><div><div class="nm">פתקים</div><div class="meta">בקרוב</div></div></div>
+    <div class="mod soon"><div class="ic">🎬</div><div><div class="nm">תוכן ורילסים</div><div class="meta">בקרוב</div></div></div>
+  </div>
+
+  <button class="ghost" onclick="installHint()">📲 איך מתקינים את האפליקציה בטלפון?</button>
+</div>
+
+<!-- bottom nav -->
+<nav class="tabbar">
+  <a class="active"><span class="i">🏠</span>בית</a>
+  <a><span class="i">🌙</span>מחזור</a>
+  <a><span class="i">✨</span>היום</a>
+  <a><span class="i">⚙️</span>הגדרות</a>
+</nav>
+
+<!-- modal -->
+<div class="modal" id="modal">
+  <div class="sheet">
+    <h2>עדכון המחזור</h2>
+    <label class="f">תאריך תחילת המחזור האחרון</label>
+    <input class="f" type="date" id="inStart" />
+    <label class="f">אורך מחזור ממוצע (ימים)</label>
+    <input class="f" type="number" id="inLen" min="20" max="40" />
+    <button class="cta" style="margin-top:18px" onclick="saveCycle()">שמירה</button>
+    <button class="ghost" onclick="closeSheet()">ביטול</button>
+    <p class="muted" style="margin-top:14px">החיזוי לביוץ הוא הערכה (אורך מחזור פחות כ-14 יום) - מצוין לתכנון אנרגיה, לא אמין מספיק לתכנון/מניעת הריון.</p>
+  </div>
+</div>
+
+<script>
+const DAY = 86400000;
+const HE_MONTHS = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
+const HE_DAYS = ["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
+
+// ---- data store (localStorage now; swaps to cloud sync later) ----
+const store = {
+  get(){ try{return JSON.parse(localStorage.getItem('dana_assistant'))||{}}catch(e){return {}} },
+  set(d){ localStorage.setItem('dana_assistant', JSON.stringify(d)) }
+};
+function todayStr(){
+  const t=new Date();
+  return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0');
+}
+function seed(){ return store.get(); }   // no personal data hardcoded; user sets cycle on first run
+
+function fmt(date){ return date.getDate()+" ב"+HE_MONTHS[date.getMonth()]; }
+function parse(s){ const [y,m,dd]=s.split('-').map(Number); return new Date(y,m-1,dd); }
+function startOfDay(d){ return new Date(d.getFullYear(),d.getMonth(),d.getDate()); }
+
+function compute(){
+  const data = seed();
+  if(!data.cycle) return null;
+  const start = parse(data.cycle.start);
+  const len = data.cycle.length;
+  const today = startOfDay(new Date());
+  let diff = Math.floor((today - start)/DAY);
+  // advance to current cycle if past period start
+  let cycleStart = new Date(start);
+  while(diff >= len){ cycleStart = new Date(cycleStart.getTime()+len*DAY); diff -= len; }
+  if(diff < 0){ diff = 0; }
+  const day = diff + 1;                 // 1-based day in cycle
+  const ovDay = len - 14;               // estimated ovulation day
+  const ovDate = new Date(cycleStart.getTime()+(ovDay-1)*DAY);
+  const nextDate = new Date(cycleStart.getTime()+len*DAY);
+  const fertStart = new Date(ovDate.getTime()-5*DAY);
+
+  let phase;
+  if(day<=5) phase='menstrual';
+  else if(day < ovDay-1) phase='follicular';
+  else if(day <= ovDay+1) phase='ovulation';
+  else phase='luteal';
+
+  return {day,len,ovDay,ovDate,nextDate,fertStart,fertEnd:ovDate,phase};
+}
+
+const PHASES = {
+  menstrual:{name:'מחזור · מנוחה',pill:'🌑 מחזור',color:'var(--rose-deep)',glow:'var(--rose)',
+    energy:'נמוכה',title:'ימי מנוחה',
+    sub:'אסטרוגן ופרוגסטרון בשפל. נורמלי להרגיש עייפה, מעוננת וברעב למתוק.',
+    em:'🌑',adviceT:'תני לעצמך לנוח',
+    adviceP:'רק משימות קלות ואדמיניסטרציה. בלי צילומים, השקות או החלטות גדולות. כן למתוק וכן למנוחה - זו לא חולשה, זה הגוף.'},
+  follicular:{name:'עלייה · יצירתיות',pill:'🌱 עלייה',color:'var(--leaf-deep)',glow:'var(--leaf)',
+    energy:'עולה',title:'האנרגיה חוזרת',
+    sub:'אסטרוגן עולה - מוח חד יותר, מצב רוח טוב, רעב לרעיונות חדשים.',
+    em:'🌱',adviceT:'זמן להתחיל דברים חדשים',
+    adviceP:'הזמן הכי טוב לתכנון, רעיונות, התחלות יצירתיות וכתיבה. שימי כאן את כל מה שדורש מוח רענן.'},
+  ovulation:{name:'שיא · אנרגיה מלאה',pill:'☀️ שיא',color:'var(--sun-deep)',glow:'var(--sun)',
+    energy:'בשיא',title:'ימי הכוח שלך',
+    sub:'שיא אסטרוגן - ביטחון, כריזמה וחברותיות גבוהים. מרגישה הכי טוב.',
+    em:'☀️',adviceT:'שימי כאן את הדברים הגדולים',
+    adviceP:'הזמן המושלם לצילומים, השקות, פוסטים, מכירות ופגישות. כל מה שדורש ממך להיות "בחוץ" - תזמני להיום.'},
+  luteal:{name:'דעיכה · סיומים',pill:'🍂 דעיכה',color:'var(--gold)',glow:'var(--gold)',
+    energy:'יורדת',title:'זמן לסגור קצוות',
+    sub:'פרוגסטרון עולה ואז יורד. אנרגיה יורדת בהדרגה, לקראת הסוף PMS אפשרי.',
+    em:'🍂',adviceT:'תסיימי, אל תתחילי',
+    adviceP:'הכי טוב לעריכה, סיום פרויקטים קיימים ומשימות פרטניות. הימנעי מהתחייבויות חדשות לקראת סוף השלב.'}
+};
+
+function render(){
+  const c = compute();
+  if(!c){   // first run: no cycle set yet
+    document.getElementById('phaseTitle').textContent = 'בואי נגדיר את המחזור';
+    document.getElementById('phaseSub').textContent = 'הזיני את תאריך תחילת המחזור האחרון כדי שהעוזרת תתחיל לעבוד 🌸';
+    document.getElementById('phasePill').textContent = '🌸 התחלה';
+    document.getElementById('dayNum').textContent = '–';
+    openSheet();
+    return;
+  }
+  const p = PHASES[c.phase];
+  const now = new Date();
+  document.getElementById('todayDate').textContent = "יום "+HE_DAYS[now.getDay()]+", "+fmt(startOfDay(now));
+
+  document.getElementById('dayNum').textContent = c.day;
+  document.getElementById('phasePill').textContent = p.pill;
+  document.getElementById('phaseTitle').textContent = p.title;
+  document.getElementById('phaseSub').textContent = p.sub;
+  document.getElementById('energyVal').textContent = p.energy;
+  document.getElementById('ovVal').textContent = "בערך "+fmt(c.ovDate);
+  document.getElementById('nextVal').textContent = "בערך "+fmt(c.nextDate);
+  document.getElementById('fertVal').textContent = fmt(c.fertStart)+" – "+fmt(c.fertEnd);
+  document.getElementById('heroGlow').style.background = p.glow;
+
+  // ring progress
+  const frac = Math.min(c.day/c.len,1);
+  document.getElementById('ringProg').style.strokeDashoffset = 295*(1-frac);
+
+  document.getElementById('adviceEm').textContent = p.em;
+  document.getElementById('adviceTitle').textContent = p.adviceT;
+  document.getElementById('adviceText').textContent = p.adviceP;
+
+  // timeline
+  const order=['menstrual','follicular','ovulation','luteal'];
+  const tl=document.getElementById('timeline'); tl.innerHTML='';
+  const ranges={
+    menstrual:'ימים 1–5', follicular:'ימים 6–'+(c.ovDay-2),
+    ovulation:'ימים '+(c.ovDay-1)+'–'+(c.ovDay+1), luteal:'ימים '+(c.ovDay+2)+'–'+c.len
+  };
+  order.forEach(k=>{
+    const ph=PHASES[k];
+    const row=document.createElement('div');
+    row.className='tl'+(k===c.phase?' now':'');
+    row.innerHTML='<span class="dot" style="background:'+ph.glow+'"></span>'+
+      '<div class="txt"><div class="t">'+ph.pill+'</div><div class="d">'+ranges[k]+'</div></div>'+
+      (k===c.phase?'<span class="when">את כאן</span>':'');
+    tl.appendChild(row);
+  });
+}
+
+// ---- modal ----
+function openSheet(){
+  const d=seed();
+  document.getElementById('inStart').value = d.cycle ? d.cycle.start : todayStr();
+  document.getElementById('inLen').value = d.cycle ? d.cycle.length : 26;
+  document.getElementById('modal').classList.add('open');
+}
+function closeSheet(){ document.getElementById('modal').classList.remove('open'); }
+function saveCycle(){
+  const d=store.get();
+  const start=document.getElementById('inStart').value;
+  const len=parseInt(document.getElementById('inLen').value)||26;
+  d.cycle={start,length:len}; store.set(d);
+  closeSheet(); render();
+}
+function installHint(){
+  alert("להוספה למסך הבית:\n\niPhone (Safari): כפתור שיתוף ⬆️ → \"הוסף למסך הבית\"\nAndroid (Chrome): תפריט ⋮ → \"הוסף למסך הבית\"\n\nברגע שנחבר סנכרון לענן, האפליקציה והמחשב יראו את אותו המידע.");
+}
+document.getElementById('modal').addEventListener('click',e=>{ if(e.target.id==='modal') closeSheet(); });
+
+render();
+if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(()=>{}); }
+</script>
+</body>
+</html>
