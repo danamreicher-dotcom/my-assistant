@@ -597,6 +597,10 @@ document.getElementById('modal').addEventListener('click',e=>{ if(e.target.id===
   }
   render();
 })();
+// keep the date current whenever the app is reopened / refocused (fixes stale day on PWA resume)
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) render(); });
+window.addEventListener('focus',render);
+window.addEventListener('pageshow',render);
 if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(()=>{}); }
 </script>
 </body>
