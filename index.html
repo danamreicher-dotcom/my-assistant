@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -23,7 +23,7 @@
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;padding:0}
   body{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Heebo,Arial,sans-serif;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
     background:radial-gradient(120% 80% at 50% 0%,#ffe3ef 0%,var(--bg) 55%);
     color:var(--ink);min-height:100vh;
     padding:max(20px,env(safe-area-inset-top)) 18px calc(100px + env(safe-area-inset-bottom));
@@ -45,7 +45,7 @@
   .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
   .hero{background:linear-gradient(160deg,#fff 0%,var(--card2) 100%);border:1px solid var(--line);
     border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);position:relative;overflow:hidden}
-  .hero .glow{position:absolute;inset:-40% -10% auto auto;width:240px;height:240px;border-radius:50%;
+  .hero .glow{position:absolute;inset:-40% auto auto -10%;width:240px;height:240px;border-radius:50%;
     filter:blur(50px);opacity:.4;background:var(--rose)}
   .phase-pill{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:700;
     padding:6px 13px;border-radius:999px;background:var(--card2);border:1px solid var(--line);color:var(--rose-deep)}
@@ -70,16 +70,14 @@
   .advice .body h3{margin:0 0 4px;font-size:16px}
   .advice .body p{margin:0;color:var(--muted);font-size:14px;line-height:1.55}
 
-  /* pre-period reassurance card */
   .pms{margin-top:14px;border:1.5px solid var(--rose);background:linear-gradient(160deg,#fff 0%,#ffe9f2 100%);
     border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);display:flex;gap:14px;align-items:flex-start;
     position:relative;overflow:hidden}
   .pms .em{font-size:30px;line-height:1}
   .pms .b h3{margin:0 0 5px;font-size:16px;color:var(--rose-deep)}
   .pms .b p{margin:0;color:var(--ink);font-size:14px;line-height:1.6}
-  .pms .spark{position:absolute;top:10px;left:14px;font-size:15px;opacity:.8}
+  .pms .spark{position:absolute;top:10px;right:14px;font-size:15px;opacity:.8}
 
-  /* talking greeting + recommendation */
   .greet{display:flex;align-items:center;gap:14px;padding:16px 18px;margin-bottom:14px}
   .greet .spk{flex:0 0 auto;width:48px;height:48px;border-radius:50%;border:none;cursor:pointer;font-size:21px;
     background:linear-gradient(135deg,var(--rose),var(--gold));color:#fff;box-shadow:0 6px 16px -6px var(--rose-deep);transition:.12s}
@@ -91,7 +89,6 @@
   .pad h2{margin:0 0 4px;font-size:18px}
   .pad .lead{margin:0 0 14px;color:var(--muted);font-size:13px}
 
-  /* chips */
   .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
   .chip{border:1px solid var(--line);background:var(--card2);color:var(--ink);border-radius:999px;
     padding:9px 13px;font-size:13px;font-weight:600;cursor:pointer;transition:.12s}
@@ -116,7 +113,6 @@
   .ghost{background:#0000;color:var(--muted);border:1px solid var(--line);margin-top:10px;width:100%;
     border-radius:14px;padding:12px;font-size:13px;cursor:pointer}
 
-  /* list items (notes / projects / log) */
   .item{display:flex;align-items:center;gap:12px;padding:13px 14px;border-bottom:1px solid var(--line)}
   .item:last-child{border-bottom:none}
   .item .txt{flex:1;font-size:14px}
@@ -129,9 +125,8 @@
     border-radius:12px;padding:0 18px;font-size:20px;font-weight:800;cursor:pointer}
 
   .badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;
-    background:var(--card2);border:1px solid var(--line);color:var(--rose-deep)}
+    background:var(--card2);border:1px solid var(--line);color:var(--rose-deep);cursor:pointer}
 
-  /* timeline */
   .tl{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line)}
   .tl:last-child{border-bottom:none}
   .tl .dot{width:11px;height:11px;border-radius:50%;flex:0 0 auto}
@@ -179,17 +174,17 @@
 <div class="wrap">
   <header class="top">
     <div>
-      <div class="hi">שלום, <b>דנה</b> 🌙</div>
+      <div class="hi">Hello, <b>Dana</b> 🌙</div>
       <div class="date" id="todayDate"></div>
     </div>
-    <div class="avatar">ד</div>
+    <div class="avatar">D</div>
   </header>
 
   <!-- ============ HOME ============ -->
   <div class="page active" id="page-home">
     <div class="card greet" id="greetCard">
-      <button class="spk" onclick="speakBriefing()" aria-label="השמעה">🔊</button>
-      <div class="g-text"><b id="greetLine">שלום, דנה</b><div id="briefLine" class="bl"></div></div>
+      <button class="spk" onclick="speakBriefing()" aria-label="play">🔊</button>
+      <div class="g-text"><b id="greetLine">Hello, Dana</b><div id="briefLine" class="bl"></div></div>
     </div>
     <section class="hero">
       <div class="glow" id="heroGlow"></div>
@@ -204,39 +199,39 @@
               <stop offset="0" stop-color="#ff9fc4"/><stop offset="1" stop-color="#ffd9b0"/>
             </linearGradient></defs>
           </svg>
-          <div class="center"><div class="big" id="dayNum">–</div><div class="lbl">יום במחזור</div></div>
+          <div class="center"><div class="big" id="dayNum">–</div><div class="lbl">cycle day</div></div>
         </div>
         <div style="flex:1">
           <h1 id="phaseTitle">—</h1>
           <p class="sub" id="phaseSub">—</p>
         </div>
       </div>
-      <button class="cta" onclick="openSheet()">🩸 עדכון תאריך המחזור</button>
+      <button class="cta" onclick="openSheet()">🩸 Update cycle date</button>
     </section>
 
     <div id="pmsCard"></div>
 
-    <div class="section-title">ההמלצה שלך להיום</div>
+    <div class="section-title">Your recommendation for today</div>
     <div class="card advice">
       <div class="em" id="adviceEm">💛</div>
       <div class="body"><h3 id="adviceTitle">—</h3><p id="adviceText">—</p></div>
     </div>
 
-    <div class="section-title">איך את מרגישה היום?</div>
+    <div class="section-title">How are you feeling today?</div>
     <div class="card pad" id="homeCheckin"></div>
 
-    <div class="section-title">העוזרת האישית שלך</div>
+    <div class="section-title">Your personal assistant</div>
     <div class="grid">
-      <div class="mod" onclick="go('today')"><div class="ic">✨</div><div><div class="nm">צ׳ק-אין יומי</div><div class="meta" id="modCheckMeta">—</div></div></div>
-      <div class="mod" onclick="go('today')"><div class="ic">📝</div><div><div class="nm">פתקים</div><div class="meta" id="modNotesMeta">—</div></div></div>
-      <div class="mod" onclick="go('projects')"><div class="ic">📋</div><div><div class="nm">פרויקטים</div><div class="meta" id="modProjMeta">—</div></div></div>
-      <div class="mod" onclick="go('cycle')"><div class="ic">🌙</div><div><div class="nm">מחזור</div><div class="meta">פעיל</div></div></div>
+      <div class="mod" onclick="go('today')"><div class="ic">✨</div><div><div class="nm">Daily check-in</div><div class="meta" id="modCheckMeta">—</div></div></div>
+      <div class="mod" onclick="go('today')"><div class="ic">📝</div><div><div class="nm">Notes</div><div class="meta" id="modNotesMeta">—</div></div></div>
+      <div class="mod" onclick="go('projects')"><div class="ic">📋</div><div><div class="nm">Projects</div><div class="meta" id="modProjMeta">—</div></div></div>
+      <div class="mod" onclick="go('cycle')"><div class="ic">🌙</div><div><div class="nm">Cycle</div><div class="meta">active</div></div></div>
     </div>
   </div>
 
   <!-- ============ CYCLE ============ -->
   <div class="page" id="page-cycle">
-    <h2 style="margin:2px 4px 14px;font-size:20px">🌙 המחזור שלך</h2>
+    <h2 style="margin:2px 4px 14px;font-size:20px">🌙 Your cycle</h2>
     <section class="hero">
       <div class="glow" id="heroGlow2"></div>
       <span class="phase-pill" id="phasePill2">—</span>
@@ -247,117 +242,115 @@
             <circle id="ringProg2" cx="54" cy="54" r="47" fill="none" stroke="url(#g)" stroke-width="9"
               stroke-linecap="round" stroke-dasharray="295" stroke-dashoffset="295"/>
           </svg>
-          <div class="center"><div class="big" id="dayNum2">–</div><div class="lbl">יום במחזור</div></div>
+          <div class="center"><div class="big" id="dayNum2">–</div><div class="lbl">cycle day</div></div>
         </div>
         <div style="flex:1"><h1 id="phaseTitle2">—</h1><p class="sub" id="phaseSub2">—</p></div>
       </div>
       <div class="stat-row">
-        <div class="stat"><div class="k">⚡ אנרגיה</div><div class="v" id="energyVal">—</div></div>
-        <div class="stat"><div class="k">🥚 ביוץ צפוי</div><div class="v" id="ovVal">—</div></div>
-        <div class="stat"><div class="k">🌸 מחזור הבא</div><div class="v" id="nextVal">—</div></div>
-        <div class="stat"><div class="k">📍 חלון פורה</div><div class="v" id="fertVal">—</div></div>
+        <div class="stat"><div class="k">⚡ Energy</div><div class="v" id="energyVal">—</div></div>
+        <div class="stat"><div class="k">🥚 Ovulation</div><div class="v" id="ovVal">—</div></div>
+        <div class="stat"><div class="k">🌸 Next period</div><div class="v" id="nextVal">—</div></div>
+        <div class="stat"><div class="k">📍 Fertile window</div><div class="v" id="fertVal">—</div></div>
       </div>
-      <button class="cta" onclick="openSheet()">עדכון תאריך / אורך מחזור</button>
+      <button class="cta" onclick="openSheet()">Update cycle date / length</button>
     </section>
-    <div class="section-title">לאורך החודש</div>
+    <div class="section-title">Through the month</div>
     <div class="card" id="timeline"></div>
   </div>
 
-  <!-- ============ TODAY (check-in + notes) ============ -->
+  <!-- ============ TODAY ============ -->
   <div class="page" id="page-today">
-    <h2 style="margin:2px 4px 14px;font-size:20px">✨ היום</h2>
+    <h2 style="margin:2px 4px 14px;font-size:20px">✨ Today</h2>
     <div class="card pad" id="fullCheckin"></div>
-    <div class="section-title">פתקים מהירים</div>
+    <div class="section-title">Quick notes</div>
     <div class="card">
-      <div class="addrow"><input class="f" id="noteInput" placeholder="מה בא לך לזכור?" /><button onclick="addNote()">+</button></div>
+      <div class="addrow"><input class="f" id="noteInput" placeholder="What do you want to remember?" /><button onclick="addNote()">+</button></div>
       <div id="notesList"></div>
     </div>
-    <div class="section-title">יומן הרגשה אחרון</div>
+    <div class="section-title">Recent mood log</div>
     <div class="card" id="checkinLog"></div>
   </div>
 
   <!-- ============ PROJECTS ============ -->
   <div class="page" id="page-projects">
-    <h2 style="margin:2px 4px 14px;font-size:20px">📋 פרויקטים</h2>
+    <h2 style="margin:2px 4px 14px;font-size:20px">📋 Projects</h2>
     <div class="card">
-      <div class="addrow"><input class="f" id="projInput" placeholder="שם פרויקט חדש" /><button onclick="addProj()">+</button></div>
+      <div class="addrow"><input class="f" id="projInput" placeholder="New project name" /><button onclick="addProj()">+</button></div>
       <div id="projList"></div>
     </div>
-    <p class="muted" style="margin:14px 4px">טאפ על פרויקט כדי לשנות סטטוס: 💡 רעיון → 🚧 בעבודה → ✅ הושלם</p>
+    <p class="muted" style="margin:14px 4px">Tap a project to change its status: 💡 Idea → 🚧 In progress → ✅ Done</p>
   </div>
 
   <!-- ============ SETTINGS ============ -->
   <div class="page" id="page-settings">
-    <h2 style="margin:2px 4px 14px;font-size:20px">⚙️ הגדרות</h2>
+    <h2 style="margin:2px 4px 14px;font-size:20px">⚙️ Settings</h2>
 
-    <div class="section-title">המחזור</div>
+    <div class="section-title">Cycle</div>
     <div class="card pad">
-      <p class="muted" style="margin:0 0 12px">תאריך תחילת מחזור: <b id="setStart">—</b> · אורך: <b id="setLen">—</b> ימים</p>
-      <button class="cta" style="margin:0" onclick="openSheet()">עריכת המחזור</button>
+      <p class="muted" style="margin:0 0 12px">Cycle start: <b id="setStart">—</b> · Length: <b id="setLen">—</b> days</p>
+      <button class="cta" style="margin:0" onclick="openSheet()">Edit cycle</button>
     </div>
 
-    <div class="section-title">סנכרון בין הטלפון למחשב</div>
+    <div class="section-title">Sync between phone & computer</div>
     <div class="card pad">
-      <p style="margin:0 0 10px"><span class="syncpill off" id="syncStatus">⚪ לא מסונכרן</span></p>
-      <p class="muted" style="margin:0 0 12px">כדי שהטלפון והמחשב יראו את אותו המידע, מזינים כאן את פרטי החיבור לענן (Supabase) ואותו "קוד סנכרון" אישי בשני המכשירים.</p>
+      <p style="margin:0 0 10px"><span class="syncpill off" id="syncStatus">⚪ Not synced</span></p>
+      <p class="muted" style="margin:0 0 12px">To let your phone and computer share the same data, enter your cloud (Supabase) details here and the same personal "sync code" on both devices.</p>
       <label class="f">Supabase URL</label>
       <input class="f" id="syncUrl" placeholder="https://xxxx.supabase.co" />
       <label class="f">anon key</label>
       <input class="f" id="syncKey" placeholder="eyJ..." />
-      <label class="f">קוד סנכרון אישי (אותו אחד בשני המכשירים)</label>
-      <input class="f" id="syncCode" placeholder="לדוגמה: dana-2026-moon" />
-      <button class="cta" onclick="saveSync()">הפעלת סנכרון</button>
-      <button class="ghost" onclick="pullNow()">משיכת המידע מהענן עכשיו</button>
+      <label class="f">Personal sync code (same on both devices)</label>
+      <input class="f" id="syncCode" placeholder="e.g. dana-2026-moon" />
+      <button class="cta" onclick="saveSync()">Turn on sync</button>
+      <button class="ghost" onclick="pullNow()">Pull data from cloud now</button>
     </div>
 
-    <div class="section-title">יומן גוגל (אוטומטי)</div>
+    <div class="section-title">Google Calendar (automatic)</div>
     <div class="card pad">
-      <p style="margin:0 0 10px"><span class="syncpill off" id="gcalStatus">⚪ לא מחובר</span></p>
-      <p class="muted" style="margin:0 0 12px">חיבור חד-פעמי ליומן גוגל. אחרי שמתחברים, בכל פתיחה של האפליקציה היומן יתעדכן לבד לפי המחזור הנוכחי - בלי כפתורים.</p>
+      <p style="margin:0 0 10px"><span class="syncpill off" id="gcalStatus">⚪ Not connected</span></p>
+      <p class="muted" style="margin:0 0 12px">A one-time connection to Google Calendar. After connecting, every time you open the app your calendar updates itself to match your current cycle — no buttons.</p>
       <label class="f">Google Client ID</label>
       <input class="f" id="gcalClientId" placeholder="xxxx.apps.googleusercontent.com" />
-      <button class="cta" onclick="gcalConnect()">חיבור ליומן גוגל</button>
-      <button class="ghost" onclick="gcalSyncNow()">עדכון היומן עכשיו</button>
+      <button class="cta" onclick="gcalConnect()">Connect Google Calendar</button>
+      <button class="ghost" onclick="gcalSyncNow()">Update calendar now</button>
     </div>
 
-    <div class="section-title">קול טבעי (ElevenLabs)</div>
+    <div class="section-title">Natural voice (ElevenLabs)</div>
     <div class="card pad">
-      <p style="margin:0 0 10px"><span class="syncpill off" id="elStatus">⚪ קול מכשיר</span></p>
-      <p class="muted" style="margin:0 0 12px">קול אנושי וטבעי. הדביקי כאן את ה-API key מ-ElevenLabs, טעני את הקולות ובחרי אחד. המפתח נשמר רק במכשיר שלך.</p>
+      <p style="margin:0 0 10px"><span class="syncpill off" id="elStatus">⚪ Device voice</span></p>
+      <p class="muted" style="margin:0 0 12px">A natural, human voice. Paste your ElevenLabs API key, load the voices and pick one. The key is saved only on your device.</p>
       <label class="f">ElevenLabs API key</label>
       <input class="f" id="elKey" placeholder="sk_..." />
-      <button class="cta" onclick="elLoadVoices()">טעינת קולות</button>
+      <button class="cta" onclick="elLoadVoices()">Load voices</button>
       <select class="f" id="elVoice" style="display:none;margin-top:12px"></select>
-      <button class="cta" id="elSaveBtn" style="display:none" onclick="elSave()">שמירה והשמעה 🔊</button>
+      <button class="cta" id="elSaveBtn" style="display:none" onclick="elSave()">Save & play 🔊</button>
     </div>
 
-    <div class="section-title">כללי</div>
+    <div class="section-title">General</div>
     <div class="card">
-      <div class="item"><div class="txt">📲 הוספה למסך הבית</div><div class="x" onclick="installHint()">›</div></div>
-      <div class="item"><div class="txt">🌸 גרסה <small>Personal Assistant · v3</small></div></div>
+      <div class="item"><div class="txt">📲 Add to Home Screen</div><div class="x" onclick="installHint()">›</div></div>
+      <div class="item"><div class="txt">🌸 Version <small>Personal Assistant · v12</small></div></div>
     </div>
   </div>
 </div>
 
-<!-- bottom nav -->
 <nav class="tabbar">
-  <a id="tab-home" class="active" onclick="go('home')"><span class="i">🏠</span>בית</a>
-  <a id="tab-cycle" onclick="go('cycle')"><span class="i">🌙</span>מחזור</a>
-  <a id="tab-today" onclick="go('today')"><span class="i">✨</span>היום</a>
-  <a id="tab-settings" onclick="go('settings')"><span class="i">⚙️</span>הגדרות</a>
+  <a id="tab-home" class="active" onclick="go('home')"><span class="i">🏠</span>Home</a>
+  <a id="tab-cycle" onclick="go('cycle')"><span class="i">🌙</span>Cycle</a>
+  <a id="tab-today" onclick="go('today')"><span class="i">✨</span>Today</a>
+  <a id="tab-settings" onclick="go('settings')"><span class="i">⚙️</span>Settings</a>
 </nav>
 
-<!-- cycle edit modal -->
 <div class="modal" id="modal">
   <div class="sheet">
-    <h2>עדכון המחזור</h2>
-    <label class="f">תאריך תחילת המחזור האחרון</label>
+    <h2>Update cycle</h2>
+    <label class="f">Last period start date</label>
     <input class="f" type="date" id="inStart" />
-    <label class="f">אורך מחזור ממוצע (ימים)</label>
+    <label class="f">Average cycle length (days)</label>
     <input class="f" type="number" id="inLen" min="20" max="40" />
-    <button class="cta" onclick="saveCycle()">שמירה</button>
-    <button class="ghost" onclick="closeSheet()">ביטול</button>
-    <p class="muted" style="margin-top:14px">החיזוי לביוץ הוא הערכה (אורך מחזור פחות כ-14 יום) - מצוין לתכנון אנרגיה, לא אמין מספיק לתכנון/מניעת הריון.</p>
+    <button class="cta" onclick="saveCycle()">Save</button>
+    <button class="ghost" onclick="closeSheet()">Cancel</button>
+    <p class="muted" style="margin-top:14px">The ovulation estimate is a prediction (cycle length minus ~14 days) — great for energy planning, not reliable for planning or avoiding pregnancy.</p>
   </div>
 </div>
 
@@ -365,13 +358,12 @@
 
 <script>
 const DAY = 86400000;
-const HE_MONTHS = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
-const HE_DAYS = ["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
-const SYMPTOMS = ["עייפות","כאבי בטן","רעב למתוק","רגישות","אנרגיה נמוכה","כאב ראש","נפיחות","מצב רוח טוב"];
+const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const SYMPTOMS = ["Tired","Cramps","Sweet cravings","Sensitive","Low energy","Headache","Bloated","Good mood"];
 const MOODS = ["😞","😐","🙂","😊","😍"];
 const ENERGY = ["🪫","🔋","⚡","🔥"];
 
-/* ---------- data store (local) + optional cloud sync ---------- */
 const store = {
   get(){ try{return JSON.parse(localStorage.getItem('dana_assistant'))||{}}catch(e){return {}} },
   set(d){ d._upd=Date.now(); localStorage.setItem('dana_assistant', JSON.stringify(d)); cloud.push(d); }
@@ -382,35 +374,25 @@ const syncCfg = {
 };
 const cloud = {
   on(){ const c=syncCfg.get(); return !!(c&&c.url&&c.key&&c.code); },
-  async push(d){
-    if(!this.on()) return;
-    const c=syncCfg.get();
+  async push(d){ if(!this.on()) return; const c=syncCfg.get();
     try{ await fetch(c.url+'/rest/v1/rpc/save_state',{method:'POST',
       headers:{'apikey':c.key,'Authorization':'Bearer '+c.key,'Content-Type':'application/json'},
-      body:JSON.stringify({p_code:c.code,p_data:d})}); }catch(e){}
-  },
-  async pull(){
-    if(!this.on()) return null;
-    const c=syncCfg.get();
-    try{
-      const r=await fetch(c.url+'/rest/v1/rpc/get_state',{method:'POST',
+      body:JSON.stringify({p_code:c.code,p_data:d})}); }catch(e){} },
+  async pull(){ if(!this.on()) return null; const c=syncCfg.get();
+    try{ const r=await fetch(c.url+'/rest/v1/rpc/get_state',{method:'POST',
         headers:{'apikey':c.key,'Authorization':'Bearer '+c.key,'Content-Type':'application/json'},
         body:JSON.stringify({p_code:c.code})});
-      if(!r.ok) return null;
-      return await r.json();
-    }catch(e){ return null; }
-  }
+      if(!r.ok) return null; return await r.json(); }catch(e){ return null; } }
 };
 
 function todayStr(){ const t=new Date();
   return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0'); }
-function fmt(date){ return date.getDate()+" ב"+HE_MONTHS[date.getMonth()]; }
+function fmt(date){ return MON[date.getMonth()]+" "+date.getDate(); }
 function parse(s){ const [y,m,dd]=s.split('-').map(Number); return new Date(y,m-1,dd); }
 function startOfDay(d){ return new Date(d.getFullYear(),d.getMonth(),d.getDate()); }
 function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),1800); }
+  setTimeout(()=>t.classList.remove('show'),2200); }
 
-/* ---------- cycle compute ---------- */
 function compute(){
   const data = store.get();
   if(!data.cycle) return null;
@@ -434,25 +416,24 @@ function compute(){
   return {day,len,ovDay,ovDate,nextDate,fertStart,fertEnd:ovDate,phase};
 }
 const PHASES = {
-  menstrual:{pill:'🌑 מחזור',glow:'var(--rose)',energy:'נמוכה',title:'ימי מנוחה',
-    sub:'אסטרוגן ופרוגסטרון בשפל. נורמלי להרגיש עייפה, מעוננת וברעב למתוק.',
-    em:'🌑',adviceT:'תני לעצמך לנוח',
-    adviceP:'רק משימות קלות ואדמיניסטרציה. בלי צילומים, השקות או החלטות גדולות. כן למתוק וכן למנוחה - זו לא חולשה, זה הגוף.'},
-  follicular:{pill:'🌱 עלייה',glow:'var(--leaf)',energy:'עולה',title:'האנרגיה חוזרת',
-    sub:'אסטרוגן עולה - מוח חד יותר, מצב רוח טוב, רעב לרעיונות חדשים.',
-    em:'🌱',adviceT:'זמן להתחיל דברים חדשים',
-    adviceP:'הזמן הכי טוב לתכנון, רעיונות, התחלות יצירתיות וכתיבה. שימי כאן את כל מה שדורש מוח רענן.'},
-  ovulation:{pill:'☀️ שיא',glow:'var(--sun)',energy:'בשיא',title:'ימי הכוח שלך',
-    sub:'שיא אסטרוגן - ביטחון, כריזמה וחברותיות גבוהים. מרגישה הכי טוב.',
-    em:'☀️',adviceT:'שימי כאן את הדברים הגדולים',
-    adviceP:'הזמן המושלם לצילומים, השקות, פוסטים, מכירות ופגישות. כל מה שדורש ממך להיות "בחוץ" - תזמני להיום.'},
-  luteal:{pill:'🍂 דעיכה',glow:'var(--gold)',energy:'יורדת',title:'זמן לסגור קצוות',
-    sub:'פרוגסטרון עולה ואז יורד. אנרגיה יורדת בהדרגה, לקראת הסוף PMS אפשרי.',
-    em:'🍂',adviceT:'תסיימי, אל תתחילי',
-    adviceP:'הכי טוב לעריכה, סיום פרויקטים קיימים ומשימות פרטניות. הימנעי מהתחייבויות חדשות לקראת סוף השלב.'}
+  menstrual:{pill:'🌑 Period',glow:'var(--rose)',energy:'Low',title:'Rest days',
+    sub:'Estrogen and progesterone are at their lowest. It is normal to feel tired, foggy, and to crave something sweet.',
+    em:'🌑',adviceT:'Be gentle with yourself',
+    adviceP:'Light tasks and admin only. No filming, launches, or big decisions. Rest and comfort food are allowed - this is not weakness, it is your body.'},
+  follicular:{pill:'🌱 Rising',glow:'var(--leaf)',energy:'Rising',title:'Your energy is back',
+    sub:'Estrogen is rising - a sharper mind, better mood, and hunger for new ideas.',
+    em:'🌱',adviceT:'Time to start new things',
+    adviceP:'Best for planning, ideas, creative starts, and writing. Put anything that needs a fresh mind here.'},
+  ovulation:{pill:'☀️ Peak',glow:'var(--sun)',energy:'Peak',title:'Your power days',
+    sub:'Peak estrogen - high confidence, charisma, and sociability. You feel your best.',
+    em:'☀️',adviceT:'Put the big things here',
+    adviceP:'The perfect time for filming, launches, posting, sales, and meetings. Schedule anything that needs you "on" for today.'},
+  luteal:{pill:'🍂 Wind-down',glow:'var(--gold)',energy:'Declining',title:'Time to wrap things up',
+    sub:'Progesterone rises then falls. Energy declines gradually, and PMS is possible near the end.',
+    em:'🍂',adviceT:'Finish, do not start',
+    adviceP:'Best for editing, finishing existing projects, and detail work. Avoid new commitments toward the end of this phase.'}
 };
 
-/* ---------- navigation ---------- */
 function go(p){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.getElementById('page-'+p)?.classList.add('active');
@@ -465,23 +446,21 @@ function go(p){
   if(p==='settings'){ renderSettings(); }
 }
 
-/* ---------- voice: talking greeting + recommendation ---------- */
-let HE_VOICE=null, greeted=false;
+/* ---------- voice ---------- */
+let EN_VOICE=null, greeted=false;
 function loadVoices(){ try{
-  const he=window.speechSynthesis.getVoices().filter(v=>/he|iw/i.test(v.lang));
-  if(!he.length) return;
+  const en=window.speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang));
+  if(!en.length) return;
   const score=v=>{ const n=((v.name||'')+' '+(v.voiceURI||'')).toLowerCase(); let s=0;
-    if(/enhanced|premium|neural|siri/.test(n)) s+=4;   // high-quality downloadable voices
-    if(v.localService) s+=1;                            // on-device = better quality
-    return s; };
-  he.sort((a,b)=>score(b)-score(a));
-  HE_VOICE=he[0];
+    if(/enhanced|premium|neural|siri/.test(n)) s+=4;
+    if(v.localService) s+=1; return s; };
+  en.sort((a,b)=>score(b)-score(a));
+  EN_VOICE=en[0];
 }catch(e){} }
 if('speechSynthesis' in window){ loadVoices(); window.speechSynthesis.onvoiceschanged=loadVoices; }
 function speakDevice(text){ if(!('speechSynthesis' in window)) return; try{ const sp=window.speechSynthesis; sp.cancel();
-  const u=new SpeechSynthesisUtterance(text); u.lang='he-IL'; if(HE_VOICE)u.voice=HE_VOICE;
-  u.rate=0.96; u.pitch=1.0; sp.speak(u); }catch(e){} }
-// natural human voice via ElevenLabs (key stored on-device only, never in the repo)
+  const u=new SpeechSynthesisUtterance(text); u.lang='en-US'; if(EN_VOICE)u.voice=EN_VOICE;
+  u.rate=0.98; u.pitch=1.0; sp.speak(u); }catch(e){} }
 let _elAudio=null;
 const eleven={
   cfg(){ try{return JSON.parse(localStorage.getItem('dana_voice'))||{}}catch(e){return {}} },
@@ -496,22 +475,21 @@ const eleven={
     if(!r.ok) throw new Error('tts '+r.status);
     const url=URL.createObjectURL(await r.blob());
     if(_elAudio){ try{_elAudio.pause()}catch(e){} }
-    _elAudio=new Audio(url); await _elAudio.play();
-  }
+    _elAudio=new Audio(url); await _elAudio.play(); }
 };
 function speak(text){ if(eleven.ready()){ eleven.speak(text).catch(()=>speakDevice(text)); } else { speakDevice(text); } }
 function buildBriefing(){
   const c=compute(); const h=new Date().getHours();
-  const greet=(h<5?'לילה טוב':h<12?'בוקר טוב':h<17?'צהריים טובים':h<21?'ערב טוב':'לילה טוב')+', דנה';
+  const greet=(h<5?'Good night, Dana':h<12?'Good morning, Dana':h<17?'Good afternoon, Dana':h<21?'Good evening, Dana':'Good night, Dana');
   let brief;
-  if(!c){ brief='בואי נגדיר את המחזור כדי שאוכל להמליץ לך מתי לקבוע דברים.'; }
+  if(!c){ brief='Let us set up your cycle so I can tell you when to schedule things.'; }
   else {
     const dToPeak=(c.ovDay-1)-c.day;
-    if(c.phase==='ovulation') brief='את בימי השיא שלך - היום מצוין לצלם סרטונים, לקבוע פגישות ולהשיק.';
-    else if(c.phase==='menstrual') brief='היום יום מנוחה. שמרי אנרגיה ואל תקבעי דברים תובעניים.';
-    else if(dToPeak>=1 && dToPeak<=4) brief='עוד '+dToPeak+' ימים מתחילים ימי השיא שלך - כדאי לשמור את הצילומים והפגישות הגדולות לימים האלה.';
-    else if(c.phase==='follicular') brief='האנרגיה עולה - זמן טוב לתכנן ולהתחיל דברים חדשים.';
-    else brief='ימי סיום ועריכה. פחות מתאים להתחלות גדולות - התמקדי בלסגור קצוות.';
+    if(c.phase==='ovulation') brief='You are in your peak days - today is perfect for filming videos, meetings, and launches.';
+    else if(c.phase==='menstrual') brief='Today is a rest day. Conserve your energy and avoid demanding plans.';
+    else if(dToPeak>=1 && dToPeak<=4) brief='Your peak days start in '+dToPeak+(dToPeak===1?' day':' days')+' - save your filming and big meetings for then.';
+    else if(c.phase==='follicular') brief='Your energy is rising - a good time to plan and start new things.';
+    else brief='Wind-down days - finishing and editing, less about starting. Focus on tying up loose ends.';
   }
   return {greet,brief};
 }
@@ -521,39 +499,38 @@ function setGreeting(){ const b=buildBriefing();
 function speakBriefing(){ const b=buildBriefing(); speak(b.greet+'. '+b.brief); }
 function autoGreet(){ if(greeted)return; greeted=true; speakBriefing(); }
 
-/* ---------- pre-period reassurance (the "mirror lies" card) ---------- */
+/* ---------- pre-period reassurance ---------- */
 const PMS_MSGS = [
-  {em:'🪞', t:'הראי משקר היום', p:'את ב-3-4 הימים שלפני המחזור. האסטרוגן צלל ואיתו גם תחושת הביטחון - זה הורמונלי, לא אמיתי. עוד כמה ימים הוא חוזר, ואיתו גם את.'},
-  {em:'🎭', t:'זאת לא את, אלה ההורמונים', p:'הגוף אוגר מים, העור קצת זועף והמוח משכנע אותך שמשהו לא בסדר. הכל יעבור תוך ימים. את מהממת, גם כשלא מרגישה ככה.'},
-  {em:'🫠', t:'באג ידוע, לא פיצ׳ר', p:'יומיים-שלושה לפני המחזור הביקורת העצמית עולה פי 10. זה ה-PMS מדבר, לא המראה שלך. אל תאמיני לו היום.'},
-  {em:'💧', t:'בדיוק הנקודה בחודש', p:'אם הכל נראה לך פחות זוהר עכשיו - זו בדיוק התקופה שבה זה צפוי. את לא השתנית, ההורמונים השתנו. והם יחזרו.'}
+  {em:'🪞', t:'The mirror is lying today', p:'You are in the 3-4 days before your period. Estrogen has dropped and your confidence with it - it is hormonal, not real. In a few days it comes back, and so do you.'},
+  {em:'🎭', t:'It is not you, it is the hormones', p:'Your body is holding water, your skin is a little moody, and your brain is sure something is wrong. It all passes within days. You are stunning, even when you do not feel it.'},
+  {em:'🫠', t:'A known bug, not a feature', p:'Two or three days before your period, self-criticism spikes 10x. That is the PMS talking, not your face. Do not believe it today.'},
+  {em:'💧', t:'Exactly the point in the month', p:'If everything looks less shiny right now - this is exactly when that is expected. You have not changed. Your hormones did. And they will come back.'}
 ];
 function renderPms(c){
   const el=document.getElementById('pmsCard'); if(!el) return;
-  if(!c || c.day < c.len-3){ el.innerHTML=''; return; }   // only the last ~4 days before period
+  if(!c || c.day < c.len-3){ el.innerHTML=''; return; }
   const m=PMS_MSGS[(c.len-c.day)%PMS_MSGS.length];
   el.innerHTML='<div class="pms"><span class="spark">✨</span><div class="em">'+m.em+'</div><div class="b"><h3>'+m.t+'</h3><p>'+m.p+'</p></div></div>';
 }
 
-/* ---------- render: cycle ---------- */
+/* ---------- render ---------- */
 function render(){
   const now = new Date();
-  document.getElementById('todayDate').textContent = "יום "+HE_DAYS[now.getDay()]+", "+fmt(startOfDay(now));
+  document.getElementById('todayDate').textContent = DAYS[now.getDay()]+", "+fmt(startOfDay(now));
   setGreeting();
   const c = compute();
   if(!c){
-    document.getElementById('phaseTitle').textContent='בואי נגדיר את המחזור';
-    document.getElementById('phaseSub').textContent='הזיני את תאריך תחילת המחזור האחרון כדי שהעוזרת תתחיל לעבוד 🌸';
-    document.getElementById('phasePill').textContent='🌸 התחלה';
+    document.getElementById('phaseTitle').textContent='Let us set up your cycle';
+    document.getElementById('phaseSub').textContent='Enter your last period start date so the assistant can begin 🌸';
+    document.getElementById('phasePill').textContent='🌸 Start';
     document.getElementById('dayNum').textContent='–';
-    document.getElementById('adviceTitle').textContent='ברוכה הבאה 💕';
-    document.getElementById('adviceText').textContent='ברגע שתגדירי את המחזור, אדע להגיד לך בכל יום מה הכי כדאי לעשות לפי האנרגיה שלך.';
+    document.getElementById('adviceTitle').textContent='Welcome 💕';
+    document.getElementById('adviceText').textContent='Once you set your cycle, I will tell you each day what is best to do based on your energy.';
     openSheet();
     renderPms(null); renderHomeCheckin(); renderModMetas();
     return;
   }
   const p = PHASES[c.phase];
-  // home hero
   document.getElementById('dayNum').textContent=c.day;
   document.getElementById('phasePill').textContent=p.pill;
   document.getElementById('phaseTitle').textContent=p.title;
@@ -563,7 +540,6 @@ function render(){
   document.getElementById('adviceEm').textContent=p.em;
   document.getElementById('adviceTitle').textContent=p.adviceT;
   document.getElementById('adviceText').textContent=p.adviceP;
-  // cycle page mirror
   document.getElementById('dayNum2').textContent=c.day;
   document.getElementById('phasePill2').textContent=p.pill;
   document.getElementById('phaseTitle2').textContent=p.title;
@@ -571,17 +547,16 @@ function render(){
   document.getElementById('heroGlow2').style.background=p.glow;
   document.getElementById('ringProg2').style.strokeDashoffset=295*(1-Math.min(c.day/c.len,1));
   document.getElementById('energyVal').textContent=p.energy;
-  document.getElementById('ovVal').textContent="בערך "+fmt(c.ovDate);
-  document.getElementById('nextVal').textContent="בערך "+fmt(c.nextDate);
+  document.getElementById('ovVal').textContent="around "+fmt(c.ovDate);
+  document.getElementById('nextVal').textContent="around "+fmt(c.nextDate);
   document.getElementById('fertVal').textContent=fmt(c.fertStart)+" – "+fmt(c.fertEnd);
-  // timeline
   const order=['menstrual','follicular','ovulation','luteal'];
-  const ranges={menstrual:'ימים 1–5',follicular:'ימים 6–'+(c.ovDay-2),
-    ovulation:'ימים '+(c.ovDay-1)+'–'+(c.ovDay+1),luteal:'ימים '+(c.ovDay+2)+'–'+c.len};
+  const ranges={menstrual:'Days 1–5',follicular:'Days 6–'+(c.ovDay-2),
+    ovulation:'Days '+(c.ovDay-1)+'–'+(c.ovDay+1),luteal:'Days '+(c.ovDay+2)+'–'+c.len};
   const tl=document.getElementById('timeline'); tl.innerHTML='';
   order.forEach(k=>{const ph=PHASES[k];const row=document.createElement('div');
     row.className='tl'+(k===c.phase?' now':'');
-    row.innerHTML='<span class="dot" style="background:'+ph.glow+'"></span><div class="txt"><div class="t">'+ph.pill+'</div><div class="d">'+ranges[k]+'</div></div>'+(k===c.phase?'<span class="when">את כאן</span>':'');
+    row.innerHTML='<span class="dot" style="background:'+ph.glow+'"></span><div class="txt"><div class="t">'+ph.pill+'</div><div class="d">'+ranges[k]+'</div></div>'+(k===c.phase?'<span class="when">you are here</span>':'');
     tl.appendChild(row);});
   renderPms(c); renderHomeCheckin(); renderModMetas();
 }
@@ -590,24 +565,23 @@ function render(){
 function getToday(){ const d=store.get(); return (d.checkins||[]).find(x=>x.date===todayStr()); }
 function checkinHTML(){
   const t=getToday()||{mood:null,energy:null,symptoms:[],note:''};
-  let h='<div style="font-size:13px;color:var(--muted);margin-bottom:4px">מצב רוח</div><div class="scale">';
+  let h='<div style="font-size:13px;color:var(--muted);margin-bottom:4px">Mood</div><div class="scale">';
   MOODS.forEach((m,i)=>h+='<button class="'+(t.mood===i?'sel':'')+'" onclick="setMood('+i+')">'+m+'</button>');
-  h+='</div><div style="font-size:13px;color:var(--muted);margin:14px 0 4px">אנרגיה</div><div class="scale">';
+  h+='</div><div style="font-size:13px;color:var(--muted);margin:14px 0 4px">Energy</div><div class="scale">';
   ENERGY.forEach((m,i)=>h+='<button class="'+(t.energy===i?'sel':'')+'" onclick="setEnergy('+i+')">'+m+'</button>');
-  h+='</div><div style="font-size:13px;color:var(--muted);margin:14px 0 4px">תחושות</div><div class="chips">';
+  h+='</div><div style="font-size:13px;color:var(--muted);margin:14px 0 4px">Symptoms</div><div class="chips">';
   SYMPTOMS.forEach(s=>h+='<span class="chip '+(t.symptoms.includes(s)?'sel':'')+'" onclick="toggleSym(\''+s+'\')">'+s+'</span>');
   h+='</div>';
   return h;
 }
-function renderHomeCheckin(){ document.getElementById('homeCheckin').innerHTML=checkinHTML(); }
-function renderToday(){
-  document.getElementById('fullCheckin').innerHTML=
-    '<h2>איך את מרגישה היום?</h2><p class="lead">רישום יומי קצר - ככה העוזרת לומדת את הדפוסים שלך לאורך זמן.</p>'
+function todayCheckinBlock(){
+  return '<h2>How are you feeling today?</h2><p class="lead">A short daily log - this is how the assistant learns your patterns over time.</p>'
     +checkinHTML()
-    +'<label class="f">משהו להוסיף?</label><textarea class="f" id="noteToday" placeholder="מילה או שתיים על היום...">'+((getToday()||{}).note||'')+'</textarea>'
-    +'<button class="cta" onclick="saveNote()">שמירת ההרגשה</button>';
-  renderNotes(); renderLog();
+    +'<label class="f">Anything to add?</label><textarea class="f" id="noteToday" placeholder="A word or two about today...">'+((getToday()||{}).note||'')+'</textarea>'
+    +'<button class="cta" onclick="saveNote()">Save how you feel</button>';
 }
+function renderHomeCheckin(){ document.getElementById('homeCheckin').innerHTML=checkinHTML(); }
+function renderToday(){ document.getElementById('fullCheckin').innerHTML=todayCheckinBlock(); renderNotes(); renderLog(); }
 function ensureToday(){
   const d=store.get(); d.checkins=d.checkins||[];
   let t=d.checkins.find(x=>x.date===todayStr());
@@ -616,27 +590,19 @@ function ensureToday(){
 }
 function setMood(i){ const {d,t}=ensureToday(); t.mood=i; store.set(d); refreshCheckins(); }
 function setEnergy(i){ const {d,t}=ensureToday(); t.energy=i; store.set(d); refreshCheckins(); }
-function toggleSym(s){ const {d,t}=ensureToday();
-  t.symptoms=t.symptoms||[];
+function toggleSym(s){ const {d,t}=ensureToday(); t.symptoms=t.symptoms||[];
   const i=t.symptoms.indexOf(s); if(i>=0)t.symptoms.splice(i,1); else t.symptoms.push(s);
   store.set(d); refreshCheckins(); }
 function saveNote(){ const {d,t}=ensureToday(); t.note=document.getElementById('noteToday').value; store.set(d);
-  toast('נשמר 💕'); renderLog(); }
-function refreshCheckins(){ renderHomeCheckin(); if(document.getElementById('page-today').classList.contains('active')){
-  document.getElementById('fullCheckin').innerHTML=
-    '<h2>איך את מרגישה היום?</h2><p class="lead">רישום יומי קצר - ככה העוזרת לומדת את הדפוסים שלך לאורך זמן.</p>'
-    +checkinHTML()
-    +'<label class="f">משהו להוסיף?</label><textarea class="f" id="noteToday" placeholder="מילה או שתיים על היום...">'+((getToday()||{}).note||'')+'</textarea>'
-    +'<button class="cta" onclick="saveNote()">שמירת ההרגשה</button>'; } }
+  toast('Saved 💕'); renderLog(); }
+function refreshCheckins(){ renderHomeCheckin();
+  if(document.getElementById('page-today').classList.contains('active')){ document.getElementById('fullCheckin').innerHTML=todayCheckinBlock(); } }
 function renderLog(){
   const d=store.get(); const logs=(d.checkins||[]).slice(0,7);
   const el=document.getElementById('checkinLog');
-  if(!logs.length){ el.innerHTML='<div class="empty">עוד אין רישומים - מלאי את ההרגשה של היום ☝️</div>'; return; }
-  el.innerHTML=logs.map(l=>{
-    const dt=parse(l.date);
-    const sym=(l.symptoms||[]).slice(0,3).join(', ');
-    return '<div class="item"><div class="txt">'+(MOODS[l.mood]||'·')+' '+(ENERGY[l.energy]||'')+' <small>'+fmt(dt)+(sym?' · '+sym:'')+(l.note?' · '+l.note:'')+'</small></div></div>';
-  }).join('');
+  if(!logs.length){ el.innerHTML='<div class="empty">No entries yet - log how you feel today ☝️</div>'; return; }
+  el.innerHTML=logs.map(l=>{ const dt=parse(l.date); const sym=(l.symptoms||[]).slice(0,3).join(', ');
+    return '<div class="item"><div class="txt">'+(MOODS[l.mood]||'·')+' '+(ENERGY[l.energy]||'')+' <small>'+fmt(dt)+(sym?' · '+sym:'')+(l.note?' · '+l.note:'')+'</small></div></div>'; }).join('');
 }
 
 /* ---------- notes ---------- */
@@ -644,24 +610,22 @@ function addNote(){ const inp=document.getElementById('noteInput'); const v=inp.
   const d=store.get(); d.notes=d.notes||[]; d.notes.unshift({id:Date.now(),text:v}); store.set(d); inp.value=''; renderNotes(); renderModMetas(); }
 function delNote(id){ const d=store.get(); d.notes=(d.notes||[]).filter(n=>n.id!==id); store.set(d); renderNotes(); renderModMetas(); }
 function renderNotes(){ const d=store.get(); const ns=d.notes||[]; const el=document.getElementById('notesList'); if(!el)return;
-  el.innerHTML=ns.length?ns.map(n=>'<div class="item"><div class="txt">'+n.text+'</div><div class="x" onclick="delNote('+n.id+')">✕</div></div>').join(''):'<div class="empty">אין פתקים עדיין</div>'; }
+  el.innerHTML=ns.length?ns.map(n=>'<div class="item"><div class="txt">'+n.text+'</div><div class="x" onclick="delNote('+n.id+')">✕</div></div>').join(''):'<div class="empty">No notes yet</div>'; }
 
 /* ---------- projects ---------- */
-const PSTATUS=[{e:'💡',t:'רעיון'},{e:'🚧',t:'בעבודה'},{e:'✅',t:'הושלם'}];
+const PSTATUS=[{e:'💡',t:'Idea'},{e:'🚧',t:'In progress'},{e:'✅',t:'Done'}];
 function addProj(){ const inp=document.getElementById('projInput'); const v=inp.value.trim(); if(!v)return;
   const d=store.get(); d.projects=d.projects||[]; d.projects.unshift({id:Date.now(),name:v,status:0}); store.set(d); inp.value=''; renderProjects(); renderModMetas(); }
 function cycleProj(id){ const d=store.get(); const p=(d.projects||[]).find(x=>x.id===id); if(p){p.status=(p.status+1)%3; store.set(d); renderProjects();} }
 function delProj(id){ const d=store.get(); d.projects=(d.projects||[]).filter(p=>p.id!==id); store.set(d); renderProjects(); renderModMetas(); }
 function renderProjects(){ const d=store.get(); const ps=d.projects||[]; const el=document.getElementById('projList'); if(!el)return;
-  el.innerHTML=ps.length?ps.map(p=>'<div class="item"><span class="badge" onclick="cycleProj('+p.id+')">'+PSTATUS[p.status].e+' '+PSTATUS[p.status].t+'</span><div class="txt">'+p.name+'</div><div class="x" onclick="delProj('+p.id+')">✕</div></div>').join(''):'<div class="empty">אין פרויקטים עדיין - הוסיפי את הראשון ☝️</div>'; }
+  el.innerHTML=ps.length?ps.map(p=>'<div class="item"><span class="badge" onclick="cycleProj('+p.id+')">'+PSTATUS[p.status].e+' '+PSTATUS[p.status].t+'</span><div class="txt">'+p.name+'</div><div class="x" onclick="delProj('+p.id+')">✕</div></div>').join(''):'<div class="empty">No projects yet - add your first one ☝️</div>'; }
 
-/* ---------- module metas ---------- */
 function renderModMetas(){
-  const d=store.get();
-  const t=getToday();
-  document.getElementById('modCheckMeta').textContent = t&&(t.mood!=null) ? 'מולא היום ✓' : 'לא מולא היום';
-  document.getElementById('modNotesMeta').textContent = ((d.notes||[]).length||0)+' פתקים';
-  document.getElementById('modProjMeta').textContent = ((d.projects||[]).length||0)+' פרויקטים';
+  const d=store.get(); const t=getToday();
+  document.getElementById('modCheckMeta').textContent = t&&(t.mood!=null) ? 'filled today ✓' : 'not filled today';
+  document.getElementById('modNotesMeta').textContent = ((d.notes||[]).length||0)+' notes';
+  document.getElementById('modProjMeta').textContent = ((d.projects||[]).length||0)+' projects';
 }
 
 /* ---------- settings ---------- */
@@ -672,48 +636,35 @@ function renderSettings(){
   const c=syncCfg.get();
   if(c){ document.getElementById('syncUrl').value=c.url||''; document.getElementById('syncKey').value=c.key||''; document.getElementById('syncCode').value=c.code||''; }
   const st=document.getElementById('syncStatus');
-  if(cloud.on()){ st.className='syncpill on'; st.textContent='🟢 מסונכרן'; }
-  else { st.className='syncpill off'; st.textContent='⚪ לא מסונכרן'; }
+  if(cloud.on()){ st.className='syncpill on'; st.textContent='🟢 Synced'; }
+  else { st.className='syncpill off'; st.textContent='⚪ Not synced'; }
   const gd=gcal.data();
   if(gd.clientId) document.getElementById('gcalClientId').value=gd.clientId;
   const gst=document.getElementById('gcalStatus');
-  if(gcal.connected()){ gst.className='syncpill on'; gst.textContent='🟢 מחובר ליומן'; }
-  else { gst.className='syncpill off'; gst.textContent='⚪ לא מחובר'; }
+  if(gcal.connected()){ gst.className='syncpill on'; gst.textContent='🟢 Connected'; }
+  else { gst.className='syncpill off'; gst.textContent='⚪ Not connected'; }
   const ec=eleven.cfg(); if(ec.apiKey) document.getElementById('elKey').value=ec.apiKey;
   const est=document.getElementById('elStatus');
-  if(eleven.ready()){ est.className='syncpill on'; est.textContent='🟢 קול אנושי'+(ec.voiceName?' · '+ec.voiceName:''); }
-  else { est.className='syncpill off'; est.textContent='⚪ קול מכשיר'; }
+  if(eleven.ready()){ est.className='syncpill on'; est.textContent='🟢 Human voice'+(ec.voiceName?' · '+ec.voiceName:''); }
+  else { est.className='syncpill off'; est.textContent='⚪ Device voice'; }
 }
 function saveSync(){
   const url=document.getElementById('syncUrl').value.trim().replace(/\/$/,'');
   const key=document.getElementById('syncKey').value.trim();
   const code=document.getElementById('syncCode').value.trim();
-  if(!url||!key||!code){ toast('צריך למלא את שלושת השדות'); return; }
-  syncCfg.set({url,key,code});
-  store.set(store.get()); // push current data up
-  renderSettings(); toast('סנכרון הופעל 🟢');
+  if(!url||!key||!code){ toast('Please fill all three fields'); return; }
+  syncCfg.set({url,key,code}); store.set(store.get());
+  renderSettings(); toast('Sync turned on 🟢');
 }
 async function pullNow(){
-  if(!cloud.on()){ toast('קודם הפעילי סנכרון'); return; }
-  toast('מושך מהענן...');
+  if(!cloud.on()){ toast('Turn on sync first'); return; }
+  toast('Pulling from cloud...');
   const remote=await cloud.pull();
-  if(remote && typeof remote==='object'){ localStorage.setItem('dana_assistant',JSON.stringify(remote)); render(); toast('המידע עודכן ✓'); }
-  else toast('אין עדיין מידע בענן');
+  if(remote && typeof remote==='object'){ localStorage.setItem('dana_assistant',JSON.stringify(remote)); render(); toast('Data updated ✓'); }
+  else toast('No data in the cloud yet');
 }
 
-/* ---------- cycle modal ---------- */
-function openSheet(){ const d=store.get();
-  document.getElementById('inStart').value=d.cycle?d.cycle.start:todayStr();
-  document.getElementById('inLen').value=d.cycle?d.cycle.length:26;
-  document.getElementById('modal').classList.add('open'); }
-function closeSheet(){ document.getElementById('modal').classList.remove('open'); }
-function saveCycle(){ const d=store.get();
-  d.cycle={start:document.getElementById('inStart').value,length:parseInt(document.getElementById('inLen').value)||26};
-  store.set(d); closeSheet(); render(); toast('עודכן 🌸'); }
-function installHint(){ alert("להוספה למסך הבית:\n\niPhone (Safari): כפתור שיתוף ⬆️ → \"הוסף למסך הבית\"\nAndroid (Chrome): תפריט ⋮ → \"הוסף למסך הבית\""); }
-document.getElementById('modal').addEventListener('click',e=>{ if(e.target.id==='modal') closeSheet(); });
-
-/* ---------- Google Calendar (automatic, in-app) ---------- */
+/* ---------- Google Calendar ---------- */
 function isoDate(dt){ return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0'); }
 function cycleEvents(){
   const data=store.get(); if(!data.cycle) return [];
@@ -723,13 +674,13 @@ function cycleEvents(){
   while(diff>=len){ cs=new Date(cs.getTime()+len*DAY); diff-=len; }
   const ov=len-14;
   const d=n=>new Date(cs.getTime()+(n-1)*DAY);
-  const endOf=dt=>isoDate(new Date(dt.getTime()+DAY)); // all-day end is exclusive
+  const endOf=dt=>isoDate(new Date(dt.getTime()+DAY));
   return [
-    {key:'rest', colorId:'1', summary:'🌙🌑 מנוחה - עדיף לא לקבוע דברים תובעניים', start:isoDate(d(1)), end:endOf(d(5)), desc:'אנרגיה נמוכה. משימות קלות בלבד, בלי צילומים/השקות/החלטות גדולות.'},
-    {key:'rise', colorId:'2', summary:'🌙🌱 אנרגיה עולה - טוב לתכנון ולפגישות', start:isoDate(d(6)), end:endOf(d(ov-2)), desc:'האנרגיה חוזרת. טוב להתחלות יצירתיות, רעיונות, תכנון וכתיבה.'},
-    {key:'peak', colorId:'5', summary:'🌙☀️ ימי שיא - הכי טוב לקבוע פגישות/צילומים/השקות', start:isoDate(d(ov-1)), end:endOf(d(ov+1)), desc:'שיא אנרגיה (כולל ביוץ). הזמן המושלם לצילומים, השקות, מכירות ופגישות.'},
-    {key:'wind', colorId:'6', summary:'🌙🍂 דעיכה - לסיים ולא להתחיל; פחות לאירועים גדולים', start:isoDate(d(ov+2)), end:endOf(d(len)), desc:'אנרגיה יורדת. טוב לעריכה וסיום פרויקטים. להימנע מהתחייבויות חדשות.'},
-    {key:'next', colorId:'11', summary:'🌙🌸 מחזור צפוי', start:isoDate(d(len+1)), end:endOf(d(len+1)), desc:'תאריך משוער למחזור הבא. ביום שמתחיל בפועל - לעדכן באפליקציה.'}
+    {key:'rest', colorId:'1', summary:'🌙🌑 Rest days - avoid demanding plans', start:isoDate(d(1)), end:endOf(d(5)), desc:'Low energy. Light tasks only, no filming, launches, or big decisions.'},
+    {key:'rise', colorId:'2', summary:'🌙🌱 Energy rising - good for planning & meetings', start:isoDate(d(6)), end:endOf(d(ov-2)), desc:'Energy is back. Good for creative starts, ideas, planning, and writing.'},
+    {key:'peak', colorId:'5', summary:'🌙☀️ Peak days - best for filming / meetings / launches', start:isoDate(d(ov-1)), end:endOf(d(ov+1)), desc:'Peak energy (incl. ovulation). The perfect time for filming, launches, sales, and meetings.'},
+    {key:'wind', colorId:'6', summary:'🌙🍂 Wind-down - finish & edit, fewer big events', start:isoDate(d(ov+2)), end:endOf(d(len)), desc:'Energy declining. Good for editing and finishing projects. Avoid new commitments.'},
+    {key:'next', colorId:'11', summary:'🌙🌸 Period expected', start:isoDate(d(len+1)), end:endOf(d(len+1)), desc:'Estimated date of your next period. On the day it actually starts, update it in the app.'}
   ];
 }
 const gcal = {
@@ -772,37 +723,51 @@ const gcal = {
 };
 function gcalConnect(){
   const id=document.getElementById('gcalClientId').value.trim();
-  if(!id){ toast('צריך להדביק Client ID'); return; }
+  if(!id){ toast('Paste your Client ID first'); return; }
   const d=gcal.data(); d.clientId=id; gcal.save(d); gcal.tokenClient=null;
-  toast('מתחבר ליומן...');
-  gcal.sync(true).then(ok=>{ renderSettings(); toast(ok?'היומן מחובר ומעודכן 🟢':'החיבור נכשל - בדקי את ה-Client ID'); });
+  toast('Connecting to calendar...');
+  gcal.sync(true).then(ok=>{ renderSettings(); toast(ok?'Calendar connected & updated 🟢':'Connection failed - check the Client ID'); });
 }
 function gcalSyncNow(){
-  if(!gcal.connected()){ toast('קודם התחברי ליומן'); return; }
-  toast('מעדכן יומן...');
-  gcal.sync(true).then(ok=>toast(ok?'היומן עודכן ✓':'לא הצלחתי לעדכן'));
+  if(!gcal.connected()){ toast('Connect the calendar first'); return; }
+  toast('Updating calendar...');
+  gcal.sync(true).then(ok=>toast(ok?'Calendar updated ✓':'Could not update'));
 }
+
+/* ---------- ElevenLabs voice setup ---------- */
 async function elLoadVoices(){
   const key=document.getElementById('elKey').value.trim();
-  if(!key){ toast('הדביקי קודם API key'); return; }
-  toast('טוען קולות...');
+  if(!key){ toast('Paste your API key first'); return; }
+  toast('Loading voices...');
   try{
     const vs=await eleven.voices(key);
     const sel=document.getElementById('elVoice'); sel.innerHTML='';
     vs.forEach(v=>{ const o=document.createElement('option'); o.value=v.voice_id; o.textContent=v.name; sel.appendChild(o); });
     const d=eleven.cfg(); d.apiKey=key; eleven.save(d);
     sel.style.display='block'; document.getElementById('elSaveBtn').style.display='block';
-    toast('בחרי קול ולחצי שמירה');
-  }catch(e){ toast('שגיאה בטעינת הקולות - בדקי את המפתח'); }
+    toast('Pick a voice and tap save');
+  }catch(e){ toast('Could not load voices - check the key'); }
 }
 function elSave(){
   const sel=document.getElementById('elVoice');
-  if(!sel.value){ toast('בחרי קול'); return; }
+  if(!sel.value){ toast('Pick a voice'); return; }
   const d=eleven.cfg(); d.voiceId=sel.value; d.voiceName=(sel.options[sel.selectedIndex]||{}).text||''; eleven.save(d);
-  renderSettings(); toast('הקול נשמר 🟢'); speakBriefing();
+  renderSettings(); toast('Voice saved 🟢'); speakBriefing();
 }
 
-/* ---------- boot: pull from cloud if configured, then render ---------- */
+/* ---------- cycle modal ---------- */
+function openSheet(){ const d=store.get();
+  document.getElementById('inStart').value=d.cycle?d.cycle.start:todayStr();
+  document.getElementById('inLen').value=d.cycle?d.cycle.length:26;
+  document.getElementById('modal').classList.add('open'); }
+function closeSheet(){ document.getElementById('modal').classList.remove('open'); }
+function saveCycle(){ const d=store.get();
+  d.cycle={start:document.getElementById('inStart').value,length:parseInt(document.getElementById('inLen').value)||26};
+  store.set(d); closeSheet(); render(); toast('Updated 🌸'); }
+function installHint(){ alert("To add to your Home Screen:\n\niPhone (Safari): Share button ⬆️ → \"Add to Home Screen\"\nAndroid (Chrome): menu ⋮ → \"Add to Home Screen\""); }
+document.getElementById('modal').addEventListener('click',e=>{ if(e.target.id==='modal') closeSheet(); });
+
+/* ---------- boot ---------- */
 (async function boot(){
   if(cloud.on()){
     const remote=await cloud.pull();
@@ -812,16 +777,10 @@ function elSave(){
     } else if(local._upd){ cloud.push(local); }
   }
   render();
-  // silently keep Google Calendar in sync with the current cycle (no taps)
   if(gcal.connected()){ setTimeout(()=>gcal.sync(false), 1500); }
 })();
-// talk on open: try right away (works on desktop/Android), and on the first tap (iOS needs a gesture)
 ['pointerdown','keydown','touchend'].forEach(ev=>window.addEventListener(ev, autoGreet, {once:true}));
 setTimeout(autoGreet, 700);
-// keep the date current whenever the app is reopened / refocused (fixes stale day on PWA resume)
-document.addEventListener('visibilitychange',()=>{ if(!document.hidden) render(); });
-window.addEventListener('focus',render);
-window.addEventListener('pageshow',render);
 if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(()=>{}); }
 </script>
 </body>
