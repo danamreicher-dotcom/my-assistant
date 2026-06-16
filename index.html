@@ -30,6 +30,21 @@
     -webkit-font-smoothing:antialiased;
   }
   .wrap{max-width:480px;margin:0 auto}
+
+  /* splash / opening animation */
+  #splash{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;
+    background:radial-gradient(120% 90% at 50% 38%,#ffe3ef 0%,#fff5f9 70%);transition:opacity .55s ease}
+  #splash.hide{opacity:0;pointer-events:none}
+  .sp-badge{width:124px;height:124px;border-radius:50%;display:grid;place-items:center;font-size:56px;
+    background:linear-gradient(135deg,var(--rose),var(--gold));box-shadow:0 22px 54px -14px var(--rose-deep);
+    animation:spFloat 2.6s ease-in-out infinite;position:relative}
+  .sp-badge::after{content:"";position:absolute;inset:-16px;border-radius:50%;border:3px solid #ff9fc466;animation:spPulse 2s ease-out infinite}
+  .sp-badge::before{content:"";position:absolute;inset:-16px;border-radius:50%;border:3px solid #ffd9b066;animation:spPulse 2s ease-out infinite .9s}
+  @keyframes spFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+  @keyframes spPulse{0%{transform:scale(1);opacity:.65}100%{transform:scale(1.55);opacity:0}}
+  .sp-greet{font-size:25px;font-weight:800;color:var(--ink);opacity:0;animation:spIn .6s ease .25s forwards}
+  .sp-hint{font-size:13px;color:var(--muted);letter-spacing:.06em;opacity:0;animation:spIn .6s ease .7s forwards}
+  @keyframes spIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
   header.top{display:flex;align-items:center;justify-content:space-between;margin:6px 2px 20px}
   .hi{font-size:15px;color:var(--muted)}
   .hi b{color:var(--ink);font-weight:700}
@@ -171,6 +186,11 @@
 </style>
 </head>
 <body>
+<div id="splash">
+  <div class="sp-badge">🌙</div>
+  <div class="sp-greet" id="spGreet">Hello Dana</div>
+  <div class="sp-hint">tap to enter ✨</div>
+</div>
 <div class="wrap">
   <header class="top">
     <div>
@@ -485,7 +505,7 @@ function speak(text){
 }
 function buildBriefing(){
   const c=compute(); const h=new Date().getHours();
-  const greet=(h<5?'Good night, Dana':h<12?'Good morning, Dana':h<17?'Good afternoon, Dana':h<21?'Good evening, Dana':'Good night, Dana');
+  const greet=(h<5?'Good night Dana':h<12?'Good morning Dana':h<17?'Good afternoon Dana':h<21?'Good evening Dana':'Good night Dana');
   let brief;
   if(!c){ brief='Let us set up your cycle so I can tell you when to schedule things.'; }
   else {
@@ -785,7 +805,16 @@ document.getElementById('modal').addEventListener('click',e=>{ if(e.target.id===
   }
   render();
   if(gcal.connected()){ setTimeout(()=>gcal.sync(false), 1500); }
+  showSplash();
 })();
+function showSplash(){
+  const sp=document.getElementById('splash'); if(!sp) return;
+  const g=document.getElementById('spGreet'); if(g) g.textContent=buildBriefing().greet;
+  const dismiss=()=>{ if(sp.classList.contains('hide'))return; autoGreet(); sp.classList.add('hide'); setTimeout(()=>{sp.style.display='none';},650); };
+  sp.addEventListener('click', dismiss);
+  setTimeout(autoGreet, 500);            // greet where audio is allowed (desktop/Android)
+  setTimeout(dismiss, 3200);             // auto-enter after the animation
+}
 ['pointerdown','keydown','touchend'].forEach(ev=>window.addEventListener(ev, autoGreet, {once:true}));
 setTimeout(autoGreet, 700);
 if('serviceWorker' in navigator){
