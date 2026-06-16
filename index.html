@@ -9,6 +9,7 @@
 <title>Dana · Personal Assistant</title>
 <link rel="manifest" href="manifest.json" />
 <link rel="apple-touch-icon" href="icon.svg" />
+<script src="https://accounts.google.com/gsi/client" async></script>
 <style>
   :root{
     --bg:#fff5f9; --bg2:#ffffff; --card:#ffffff; --card2:#fff0f6;
@@ -284,6 +285,16 @@
       <button class="ghost" onclick="pullNow()">משיכת המידע מהענן עכשיו</button>
     </div>
 
+    <div class="section-title">יומן גוגל (אוטומטי)</div>
+    <div class="card pad">
+      <p style="margin:0 0 10px"><span class="syncpill off" id="gcalStatus">⚪ לא מחובר</span></p>
+      <p class="muted" style="margin:0 0 12px">חיבור חד-פעמי ליומן גוגל. אחרי שמתחברים, בכל פתיחה של האפליקציה היומן יתעדכן לבד לפי המחזור הנוכחי - בלי כפתורים.</p>
+      <label class="f">Google Client ID</label>
+      <input class="f" id="gcalClientId" placeholder="xxxx.apps.googleusercontent.com" />
+      <button class="cta" onclick="gcalConnect()">חיבור ליומן גוגל</button>
+      <button class="ghost" onclick="gcalSyncNow()">עדכון היומן עכשיו</button>
+    </div>
+
     <div class="section-title">כללי</div>
     <div class="card">
       <div class="item"><div class="txt">📲 הוספה למסך הבית</div><div class="x" onclick="installHint()">›</div></div>
@@ -556,6 +567,11 @@ function renderSettings(){
   const st=document.getElementById('syncStatus');
   if(cloud.on()){ st.className='syncpill on'; st.textContent='🟢 מסונכרן'; }
   else { st.className='syncpill off'; st.textContent='⚪ לא מסונכרן'; }
+  const gd=gcal.data();
+  if(gd.clientId) document.getElementById('gcalClientId').value=gd.clientId;
+  const gst=document.getElementById('gcalStatus');
+  if(gcal.connected()){ gst.className='syncpill on'; gst.textContent='🟢 מחובר ליומן'; }
+  else { gst.className='syncpill off'; gst.textContent='⚪ לא מחובר'; }
 }
 function saveSync(){
   const url=document.getElementById('syncUrl').value.trim().replace(/\/$/,'');
@@ -586,6 +602,76 @@ function saveCycle(){ const d=store.get();
 function installHint(){ alert("להוספה למסך הבית:\n\niPhone (Safari): כפתור שיתוף ⬆️ → \"הוסף למסך הבית\"\nAndroid (Chrome): תפריט ⋮ → \"הוסף למסך הבית\""); }
 document.getElementById('modal').addEventListener('click',e=>{ if(e.target.id==='modal') closeSheet(); });
 
+/* ---------- Google Calendar (automatic, in-app) ---------- */
+function isoDate(dt){ return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0'); }
+function cycleEvents(){
+  const data=store.get(); if(!data.cycle) return [];
+  const start=parse(data.cycle.start), len=data.cycle.length;
+  const today=startOfDay(new Date());
+  let cs=new Date(start), diff=Math.floor((today-start)/DAY);
+  while(diff>=len){ cs=new Date(cs.getTime()+len*DAY); diff-=len; }
+  const ov=len-14;
+  const d=n=>new Date(cs.getTime()+(n-1)*DAY);
+  const endOf=dt=>isoDate(new Date(dt.getTime()+DAY)); // all-day end is exclusive
+  return [
+    {key:'rest', colorId:'1', summary:'🌙🌑 מנוחה - עדיף לא לקבוע דברים תובעניים', start:isoDate(d(1)), end:endOf(d(5)), desc:'אנרגיה נמוכה. משימות קלות בלבד, בלי צילומים/השקות/החלטות גדולות.'},
+    {key:'rise', colorId:'2', summary:'🌙🌱 אנרגיה עולה - טוב לתכנון ולפגישות', start:isoDate(d(6)), end:endOf(d(ov-2)), desc:'האנרגיה חוזרת. טוב להתחלות יצירתיות, רעיונות, תכנון וכתיבה.'},
+    {key:'peak', colorId:'5', summary:'🌙☀️ ימי שיא - הכי טוב לקבוע פגישות/צילומים/השקות', start:isoDate(d(ov-1)), end:endOf(d(ov+1)), desc:'שיא אנרגיה (כולל ביוץ). הזמן המושלם לצילומים, השקות, מכירות ופגישות.'},
+    {key:'wind', colorId:'6', summary:'🌙🍂 דעיכה - לסיים ולא להתחיל; פחות לאירועים גדולים', start:isoDate(d(ov+2)), end:endOf(d(len)), desc:'אנרגיה יורדת. טוב לעריכה וסיום פרויקטים. להימנע מהתחייבויות חדשות.'},
+    {key:'next', colorId:'11', summary:'🌙🌸 מחזור צפוי', start:isoDate(d(len+1)), end:endOf(d(len+1)), desc:'תאריך משוער למחזור הבא. ביום שמתחיל בפועל - לעדכן באפליקציה.'}
+  ];
+}
+const gcal = {
+  data(){ try{return JSON.parse(localStorage.getItem('dana_gcal'))||{}}catch(e){return {}} },
+  save(d){ localStorage.setItem('dana_gcal', JSON.stringify(d)); },
+  connected(){ return !!this.data().clientId; },
+  token:null, tokenClient:null, _cb:null,
+  init(){ const d=this.data(); if(!d.clientId || !window.google || !google.accounts) return false;
+    if(!this.tokenClient){
+      this.tokenClient=google.accounts.oauth2.initTokenClient({
+        client_id:d.clientId, scope:'https://www.googleapis.com/auth/calendar.events',
+        callback:resp=>{ if(resp&&resp.access_token){ this.token=resp.access_token; } if(this._cb){const cb=this._cb;this._cb=null;cb(!!(resp&&resp.access_token));} }
+      });
+    }
+    return true;
+  },
+  auth(interactive){ return new Promise(res=>{ if(!this.init()){res(false);return;} this._cb=res;
+    try{ this.tokenClient.requestAccessToken({prompt: interactive?'consent':''}); }catch(e){ this._cb=null; res(false); } }); },
+  async sync(interactive){
+    if(!this.connected()) return false;
+    const ok=await this.auth(interactive); if(!ok||!this.token) return false;
+    const evs=cycleEvents(); if(!evs.length) return false;
+    const d=this.data(); d.eventIds=d.eventIds||{};
+    for(const e of evs){
+      const body={summary:e.summary,description:e.desc,start:{date:e.start},end:{date:e.end},transparency:'transparent',colorId:e.colorId};
+      const id=d.eventIds[e.key];
+      try{
+        if(id){
+          const r=await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events/'+id,{method:'PATCH',headers:{'Authorization':'Bearer '+this.token,'Content-Type':'application/json'},body:JSON.stringify(body)});
+          if(r.status===404||r.status===410){ delete d.eventIds[e.key]; }
+        }
+        if(!d.eventIds[e.key]){
+          const r=await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events',{method:'POST',headers:{'Authorization':'Bearer '+this.token,'Content-Type':'application/json'},body:JSON.stringify(body)});
+          const j=await r.json(); if(j&&j.id) d.eventIds[e.key]=j.id;
+        }
+      }catch(err){}
+    }
+    this.save(d); return true;
+  }
+};
+function gcalConnect(){
+  const id=document.getElementById('gcalClientId').value.trim();
+  if(!id){ toast('צריך להדביק Client ID'); return; }
+  const d=gcal.data(); d.clientId=id; gcal.save(d); gcal.tokenClient=null;
+  toast('מתחבר ליומן...');
+  gcal.sync(true).then(ok=>{ renderSettings(); toast(ok?'היומן מחובר ומעודכן 🟢':'החיבור נכשל - בדקי את ה-Client ID'); });
+}
+function gcalSyncNow(){
+  if(!gcal.connected()){ toast('קודם התחברי ליומן'); return; }
+  toast('מעדכן יומן...');
+  gcal.sync(true).then(ok=>toast(ok?'היומן עודכן ✓':'לא הצלחתי לעדכן'));
+}
+
 /* ---------- boot: pull from cloud if configured, then render ---------- */
 (async function boot(){
   if(cloud.on()){
@@ -596,6 +682,8 @@ document.getElementById('modal').addEventListener('click',e=>{ if(e.target.id===
     } else if(local._upd){ cloud.push(local); }
   }
   render();
+  // silently keep Google Calendar in sync with the current cycle (no taps)
+  if(gcal.connected()){ setTimeout(()=>gcal.sync(false), 1500); }
 })();
 // keep the date current whenever the app is reopened / refocused (fixes stale day on PWA resume)
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden) render(); });
