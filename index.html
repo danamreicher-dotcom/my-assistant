@@ -93,6 +93,14 @@
   .pms .b p{margin:0;color:var(--ink);font-size:14px;line-height:1.6}
   .pms .spark{position:absolute;top:10px;right:14px;font-size:15px;opacity:.8}
 
+  .fert{margin-top:14px;border:1.5px solid var(--sun);background:linear-gradient(160deg,#fff 0%,#fff3e2 100%);
+    border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);display:flex;gap:14px;align-items:flex-start;position:relative;overflow:hidden}
+  .fert .em{font-size:30px;line-height:1}
+  .fert .b h3{margin:0 0 5px;font-size:16px;color:var(--sun-deep)}
+  .fert .b p{margin:0;color:var(--ink);font-size:14px;line-height:1.6}
+  .fert .b p.disc{margin-top:8px;color:var(--muted);font-size:12px}
+  .fert .spark{position:absolute;top:10px;right:14px;font-size:15px;opacity:.8}
+
   .greet{display:flex;align-items:center;gap:14px;padding:16px 18px;margin-bottom:14px}
   .greet .spk{flex:0 0 auto;width:48px;height:48px;border-radius:50%;border:none;cursor:pointer;font-size:21px;
     background:linear-gradient(135deg,var(--rose),var(--gold));color:#fff;box-shadow:0 6px 16px -6px var(--rose-deep);transition:.12s}
@@ -230,6 +238,7 @@
     </section>
 
     <div id="pmsCard"></div>
+    <div id="fertCard"></div>
 
     <div class="section-title">Your recommendation for today</div>
     <div class="card advice">
@@ -540,6 +549,18 @@ function renderPms(c){
   const m=PMS_MSGS[(c.len-c.day)%PMS_MSGS.length];
   el.innerHTML='<div class="pms"><span class="spark">✨</span><div class="em">'+m.em+'</div><div class="b"><h3>'+m.t+'</h3><p>'+m.p+'</p></div></div>';
 }
+const FERT_MSGS = [
+  {em:'🌂', t:'Danger zone: fertile window', p:'Your most fertile days are here. If a baby is NOT on this month’s to-do list, this is the "bring an umbrella" stretch. ☂️'},
+  {em:'🐣', t:'Caution: baby-making season', p:'Your body is in full fertile mode right now. Wonderful if you’re trying - extra careful if you’re not. 😉'},
+  {em:'🚨', t:'Peak fertility alert', p:'This is the window where the stork is paying closest attention. Plan accordingly. 🥚'}
+];
+function renderFertile(c){
+  const el=document.getElementById('fertCard'); if(!el) return;
+  const inWin = c && c.day>=c.ovDay-5 && c.day<=c.ovDay+1;
+  if(!inWin){ el.innerHTML=''; return; }
+  const m=FERT_MSGS[(c.ovDay-c.day+5)%FERT_MSGS.length];
+  el.innerHTML='<div class="fert"><span class="spark">🥚</span><div class="em">'+m.em+'</div><div class="b"><h3>'+m.t+' ('+fmt(c.fertStart)+'–'+fmt(c.fertEnd)+')</h3><p>'+m.p+'</p><p class="disc">⚠️ Estimate only - not reliable birth control. Don’t rely on timing alone.</p></div></div>';
+}
 
 /* ---------- render ---------- */
 function render(){
@@ -555,7 +576,7 @@ function render(){
     document.getElementById('adviceTitle').textContent='Welcome 💕';
     document.getElementById('adviceText').textContent='Once you set your cycle, I will tell you each day what is best to do based on your energy.';
     openSheet();
-    renderPms(null); renderHomeCheckin(); renderModMetas(); renderCalToday();
+    renderPms(null); renderFertile(null); renderHomeCheckin(); renderModMetas(); renderCalToday();
     return;
   }
   const p = PHASES[c.phase];
@@ -586,7 +607,7 @@ function render(){
     row.className='tl'+(k===c.phase?' now':'');
     row.innerHTML='<span class="dot" style="background:'+ph.glow+'"></span><div class="txt"><div class="t">'+ph.pill+'</div><div class="d">'+ranges[k]+'</div></div>'+(k===c.phase?'<span class="when">you are here</span>':'');
     tl.appendChild(row);});
-  renderPms(c); renderHomeCheckin(); renderModMetas(); renderCalToday();
+  renderPms(c); renderFertile(c); renderHomeCheckin(); renderModMetas(); renderCalToday();
 }
 
 /* ---------- check-in ---------- */
