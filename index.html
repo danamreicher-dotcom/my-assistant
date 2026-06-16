@@ -105,6 +105,8 @@
   textarea.f,input.f{width:100%;background:var(--card2);border:1px solid var(--line);color:var(--ink);
     border-radius:14px;padding:13px;font-size:15px;font-family:inherit;margin-top:6px}
   textarea.f{min-height:70px;resize:vertical}
+  select.f{width:100%;background:var(--card2);border:1px solid var(--line);color:var(--ink);
+    border-radius:14px;padding:13px;font-size:15px;font-family:inherit}
   label.f{display:block;font-size:13px;color:var(--muted);margin:16px 0 0;font-weight:600}
 
   button.cta{margin-top:18px;width:100%;border:none;border-radius:16px;padding:15px;font-size:15px;font-weight:800;
@@ -318,6 +320,17 @@
       <button class="ghost" onclick="gcalSyncNow()">עדכון היומן עכשיו</button>
     </div>
 
+    <div class="section-title">קול טבעי (ElevenLabs)</div>
+    <div class="card pad">
+      <p style="margin:0 0 10px"><span class="syncpill off" id="elStatus">⚪ קול מכשיר</span></p>
+      <p class="muted" style="margin:0 0 12px">קול אנושי וטבעי. הדביקי כאן את ה-API key מ-ElevenLabs, טעני את הקולות ובחרי אחד. המפתח נשמר רק במכשיר שלך.</p>
+      <label class="f">ElevenLabs API key</label>
+      <input class="f" id="elKey" placeholder="sk_..." />
+      <button class="cta" onclick="elLoadVoices()">טעינת קולות</button>
+      <select class="f" id="elVoice" style="display:none;margin-top:12px"></select>
+      <button class="cta" id="elSaveBtn" style="display:none" onclick="elSave()">שמירה והשמעה 🔊</button>
+    </div>
+
     <div class="section-title">כללי</div>
     <div class="card">
       <div class="item"><div class="txt">📲 הוספה למסך הבית</div><div class="x" onclick="installHint()">›</div></div>
@@ -465,9 +478,28 @@ function loadVoices(){ try{
   HE_VOICE=he[0];
 }catch(e){} }
 if('speechSynthesis' in window){ loadVoices(); window.speechSynthesis.onvoiceschanged=loadVoices; }
-function speak(text){ if(!('speechSynthesis' in window)) return; try{ const sp=window.speechSynthesis; sp.cancel();
+function speakDevice(text){ if(!('speechSynthesis' in window)) return; try{ const sp=window.speechSynthesis; sp.cancel();
   const u=new SpeechSynthesisUtterance(text); u.lang='he-IL'; if(HE_VOICE)u.voice=HE_VOICE;
   u.rate=0.96; u.pitch=1.0; sp.speak(u); }catch(e){} }
+// natural human voice via ElevenLabs (key stored on-device only, never in the repo)
+let _elAudio=null;
+const eleven={
+  cfg(){ try{return JSON.parse(localStorage.getItem('dana_voice'))||{}}catch(e){return {}} },
+  save(d){ localStorage.setItem('dana_voice', JSON.stringify(d)); },
+  ready(){ const c=this.cfg(); return !!(c.apiKey && c.voiceId); },
+  async voices(key){ const r=await fetch('https://api.elevenlabs.io/v1/voices',{headers:{'xi-api-key':key}});
+    if(!r.ok) throw new Error('voices '+r.status); const j=await r.json(); return j.voices||[]; },
+  async speak(text){ const c=this.cfg();
+    const r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+c.voiceId,{method:'POST',
+      headers:{'xi-api-key':c.apiKey,'Content-Type':'application/json','Accept':'audio/mpeg'},
+      body:JSON.stringify({text,model_id:'eleven_multilingual_v2',voice_settings:{stability:0.45,similarity_boost:0.8,style:0.1,use_speaker_boost:true}})});
+    if(!r.ok) throw new Error('tts '+r.status);
+    const url=URL.createObjectURL(await r.blob());
+    if(_elAudio){ try{_elAudio.pause()}catch(e){} }
+    _elAudio=new Audio(url); await _elAudio.play();
+  }
+};
+function speak(text){ if(eleven.ready()){ eleven.speak(text).catch(()=>speakDevice(text)); } else { speakDevice(text); } }
 function buildBriefing(){
   const c=compute(); const h=new Date().getHours();
   const greet=(h<5?'לילה טוב':h<12?'בוקר טוב':h<17?'צהריים טובים':h<21?'ערב טוב':'לילה טוב')+', דנה';
@@ -647,6 +679,10 @@ function renderSettings(){
   const gst=document.getElementById('gcalStatus');
   if(gcal.connected()){ gst.className='syncpill on'; gst.textContent='🟢 מחובר ליומן'; }
   else { gst.className='syncpill off'; gst.textContent='⚪ לא מחובר'; }
+  const ec=eleven.cfg(); if(ec.apiKey) document.getElementById('elKey').value=ec.apiKey;
+  const est=document.getElementById('elStatus');
+  if(eleven.ready()){ est.className='syncpill on'; est.textContent='🟢 קול אנושי'+(ec.voiceName?' · '+ec.voiceName:''); }
+  else { est.className='syncpill off'; est.textContent='⚪ קול מכשיר'; }
 }
 function saveSync(){
   const url=document.getElementById('syncUrl').value.trim().replace(/\/$/,'');
@@ -745,6 +781,25 @@ function gcalSyncNow(){
   if(!gcal.connected()){ toast('קודם התחברי ליומן'); return; }
   toast('מעדכן יומן...');
   gcal.sync(true).then(ok=>toast(ok?'היומן עודכן ✓':'לא הצלחתי לעדכן'));
+}
+async function elLoadVoices(){
+  const key=document.getElementById('elKey').value.trim();
+  if(!key){ toast('הדביקי קודם API key'); return; }
+  toast('טוען קולות...');
+  try{
+    const vs=await eleven.voices(key);
+    const sel=document.getElementById('elVoice'); sel.innerHTML='';
+    vs.forEach(v=>{ const o=document.createElement('option'); o.value=v.voice_id; o.textContent=v.name; sel.appendChild(o); });
+    const d=eleven.cfg(); d.apiKey=key; eleven.save(d);
+    sel.style.display='block'; document.getElementById('elSaveBtn').style.display='block';
+    toast('בחרי קול ולחצי שמירה');
+  }catch(e){ toast('שגיאה בטעינת הקולות - בדקי את המפתח'); }
+}
+function elSave(){
+  const sel=document.getElementById('elVoice');
+  if(!sel.value){ toast('בחרי קול'); return; }
+  const d=eleven.cfg(); d.voiceId=sel.value; d.voiceName=(sel.options[sel.selectedIndex]||{}).text||''; eleven.save(d);
+  renderSettings(); toast('הקול נשמר 🟢'); speakBriefing();
 }
 
 /* ---------- boot: pull from cloud if configured, then render ---------- */
