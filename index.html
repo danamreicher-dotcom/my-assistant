@@ -70,6 +70,15 @@
   .advice .body h3{margin:0 0 4px;font-size:16px}
   .advice .body p{margin:0;color:var(--muted);font-size:14px;line-height:1.55}
 
+  /* pre-period reassurance card */
+  .pms{margin-top:14px;border:1.5px solid var(--rose);background:linear-gradient(160deg,#fff 0%,#ffe9f2 100%);
+    border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);display:flex;gap:14px;align-items:flex-start;
+    position:relative;overflow:hidden}
+  .pms .em{font-size:30px;line-height:1}
+  .pms .b h3{margin:0 0 5px;font-size:16px;color:var(--rose-deep)}
+  .pms .b p{margin:0;color:var(--ink);font-size:14px;line-height:1.6}
+  .pms .spark{position:absolute;top:10px;left:14px;font-size:15px;opacity:.8}
+
   .pad{padding:18px}
   .pad h2{margin:0 0 4px;font-size:18px}
   .pad .lead{margin:0 0 14px;color:var(--muted);font-size:13px}
@@ -190,6 +199,8 @@
       </div>
       <button class="cta" onclick="openSheet()">🩸 עדכון תאריך המחזור</button>
     </section>
+
+    <div id="pmsCard"></div>
 
     <div class="section-title">ההמלצה שלך להיום</div>
     <div class="card advice">
@@ -429,6 +440,20 @@ function go(p){
   if(p==='settings'){ renderSettings(); }
 }
 
+/* ---------- pre-period reassurance (the "mirror lies" card) ---------- */
+const PMS_MSGS = [
+  {em:'🪞', t:'הראי משקר היום', p:'את ב-3-4 הימים שלפני המחזור. האסטרוגן צלל ואיתו גם תחושת הביטחון - זה הורמונלי, לא אמיתי. עוד כמה ימים הוא חוזר, ואיתו גם את.'},
+  {em:'🎭', t:'זאת לא את, אלה ההורמונים', p:'הגוף אוגר מים, העור קצת זועף והמוח משכנע אותך שמשהו לא בסדר. הכל יעבור תוך ימים. את מהממת, גם כשלא מרגישה ככה.'},
+  {em:'🫠', t:'באג ידוע, לא פיצ׳ר', p:'יומיים-שלושה לפני המחזור הביקורת העצמית עולה פי 10. זה ה-PMS מדבר, לא המראה שלך. אל תאמיני לו היום.'},
+  {em:'💧', t:'בדיוק הנקודה בחודש', p:'אם הכל נראה לך פחות זוהר עכשיו - זו בדיוק התקופה שבה זה צפוי. את לא השתנית, ההורמונים השתנו. והם יחזרו.'}
+];
+function renderPms(c){
+  const el=document.getElementById('pmsCard'); if(!el) return;
+  if(!c || c.day < c.len-3){ el.innerHTML=''; return; }   // only the last ~4 days before period
+  const m=PMS_MSGS[(c.len-c.day)%PMS_MSGS.length];
+  el.innerHTML='<div class="pms"><span class="spark">✨</span><div class="em">'+m.em+'</div><div class="b"><h3>'+m.t+'</h3><p>'+m.p+'</p></div></div>';
+}
+
 /* ---------- render: cycle ---------- */
 function render(){
   const now = new Date();
@@ -442,7 +467,7 @@ function render(){
     document.getElementById('adviceTitle').textContent='ברוכה הבאה 💕';
     document.getElementById('adviceText').textContent='ברגע שתגדירי את המחזור, אדע להגיד לך בכל יום מה הכי כדאי לעשות לפי האנרגיה שלך.';
     openSheet();
-    renderHomeCheckin(); renderModMetas();
+    renderPms(null); renderHomeCheckin(); renderModMetas();
     return;
   }
   const p = PHASES[c.phase];
@@ -476,7 +501,7 @@ function render(){
     row.className='tl'+(k===c.phase?' now':'');
     row.innerHTML='<span class="dot" style="background:'+ph.glow+'"></span><div class="txt"><div class="t">'+ph.pill+'</div><div class="d">'+ranges[k]+'</div></div>'+(k===c.phase?'<span class="when">את כאן</span>':'');
     tl.appendChild(row);});
-  renderHomeCheckin(); renderModMetas();
+  renderPms(c); renderHomeCheckin(); renderModMetas();
 }
 
 /* ---------- check-in ---------- */
