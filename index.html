@@ -9,24 +9,30 @@
 <title>Dana · Personal Assistant</title>
 <link rel="manifest" href="manifest.json" />
 <link rel="apple-touch-icon" href="icon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&display=swap" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async></script>
 <style>
   :root{
-    --bg:#fff5f9; --bg2:#ffffff; --card:#ffffff; --card2:#fff0f6;
-    --ink:#5a2f47; --muted:#bd8aa3; --line:#ffd9e8;
-    --rose:#ff9fc4; --rose-deep:#f06aa1;
-    --gold:#ffd9b0; --sun:#ffcf8a; --sun-deep:#f0ab57;
-    --leaf:#c4ead0; --leaf-deep:#7cc497;
+    --bg:#fbf4f2; --bg2:#ffffff; --card:#ffffff; --card2:#fbeef1;
+    --ink:#3b2330; --muted:#876a77; --line:#f1e3e7;
+    --rose:#e8669a; --rose-deep:#d24e85;
+    --gold:#ecb37f; --sun:#f0c388; --sun-deep:#d49a52;
+    --leaf:#c2e2c9; --leaf-deep:#6fa97b;
     --sky:#bcd3f5;
-    --radius:24px; --shadow:0 14px 38px -14px #f7a8cb88;
+    --radius:22px; --radius-sm:14px;
+    --shadow:0 12px 34px -14px rgba(196,86,128,.28);
+    --shadow-sm:0 4px 16px -8px rgba(196,86,128,.22);
+    --serif:'Fraunces',Georgia,'Times New Roman',serif;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;padding:0}
   body{
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
-    background:radial-gradient(120% 80% at 50% 0%,#ffe3ef 0%,var(--bg) 55%);
+    background:radial-gradient(130% 70% at 50% -5%,#ffe2ea 0%,var(--bg) 48%);
     color:var(--ink);min-height:100vh;
-    padding:max(20px,env(safe-area-inset-top)) 18px calc(100px + env(safe-area-inset-bottom));
+    padding:max(22px,env(safe-area-inset-top)) 20px calc(104px + env(safe-area-inset-bottom));
     -webkit-font-smoothing:antialiased;
   }
   .wrap{max-width:480px;margin:0 auto}
@@ -42,16 +48,20 @@
   .sp-badge::before{content:"";position:absolute;inset:-16px;border-radius:50%;border:3px solid #ffd9b066;animation:spPulse 2s ease-out infinite .9s}
   @keyframes spFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
   @keyframes spPulse{0%{transform:scale(1);opacity:.65}100%{transform:scale(1.55);opacity:0}}
-  .sp-greet{font-size:25px;font-weight:800;color:var(--ink);opacity:0;animation:spIn .6s ease .25s forwards}
+  .sp-greet{font-family:var(--serif);font-size:27px;font-weight:600;color:var(--ink);letter-spacing:-.01em;opacity:0;animation:spIn .6s ease .25s forwards}
   .sp-hint{font-size:13px;color:var(--muted);letter-spacing:.06em;opacity:0;animation:spIn .6s ease .7s forwards}
   @keyframes spIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-  header.top{display:flex;align-items:center;justify-content:space-between;margin:6px 2px 20px}
-  .hi{font-size:15px;color:var(--muted)}
-  .hi b{color:var(--ink);font-weight:700}
-  .date{font-size:13px;color:var(--muted)}
-  .avatar{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;
-    background:linear-gradient(135deg,var(--rose),var(--gold));color:#fff;font-weight:800;font-size:18px;
-    box-shadow:0 6px 16px -6px var(--rose-deep)}
+  header.top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:4px 2px 22px}
+  .head-l{min-width:0}
+  .hi{font-family:var(--serif);font-size:25px;font-weight:600;color:var(--ink);line-height:1.12;letter-spacing:-.012em}
+  .date{font-size:12.5px;color:var(--muted);margin-top:4px;letter-spacing:.01em}
+  .head-r{display:flex;align-items:center;gap:11px;flex:0 0 auto}
+  .spk{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);cursor:pointer;font-size:16px;
+    background:var(--card);color:var(--rose-deep);box-shadow:var(--shadow-sm);transition:.12s;display:grid;place-items:center}
+  .spk:active{transform:scale(.9)}
+  .avatar{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;
+    background:linear-gradient(140deg,var(--rose),var(--gold));color:#fff;font-family:var(--serif);font-weight:600;font-size:18px;
+    box-shadow:0 6px 16px -8px var(--rose-deep)}
 
   .page{display:none;animation:fade .25s}
   .page.active{display:block}
@@ -68,35 +78,36 @@
   .ring{position:relative;width:108px;height:108px;flex:0 0 auto}
   .ring svg{transform:rotate(-90deg)}
   .ring .center{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
-  .ring .center .big{font-size:30px;font-weight:800;line-height:1}
-  .ring .center .lbl{font-size:11px;color:var(--muted);margin-top:3px}
-  .hero h1{margin:0 0 4px;font-size:21px;font-weight:800}
-  .hero p.sub{margin:0;color:var(--muted);font-size:14px;line-height:1.5}
+  .ring .center .big{font-family:var(--serif);font-size:34px;font-weight:600;line-height:1}
+  .ring .center .lbl{font-size:10.5px;color:var(--muted);margin-top:3px;letter-spacing:.03em;text-transform:uppercase}
+  .hero h1{margin:0 0 5px;font-family:var(--serif);font-size:24px;font-weight:600;letter-spacing:-.01em}
+  .hero p.sub{margin:0;color:var(--muted);font-size:13.5px;line-height:1.55}
+  .page h2{font-family:var(--serif);font-weight:600;letter-spacing:-.01em}
 
   .stat-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
   .stat{background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:14px}
   .stat .k{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
   .stat .v{font-size:16px;font-weight:700;margin-top:5px}
 
-  .section-title{margin:26px 4px 12px;font-size:13px;letter-spacing:.04em;color:var(--muted);font-weight:700;text-transform:uppercase}
+  .section-title{margin:30px 6px 12px;font-size:11px;letter-spacing:.13em;color:var(--muted);font-weight:600;text-transform:uppercase}
 
   .advice{padding:18px;display:flex;gap:14px;align-items:flex-start}
   .advice .em{font-size:26px;line-height:1}
-  .advice .body h3{margin:0 0 4px;font-size:16px}
-  .advice .body p{margin:0;color:var(--muted);font-size:14px;line-height:1.55}
+  .advice .body h3{margin:0 0 5px;font-family:var(--serif);font-size:17px;font-weight:600}
+  .advice .body p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.55}
 
   .pms{margin-top:14px;border:1.5px solid var(--rose);background:linear-gradient(160deg,#fff 0%,#ffe9f2 100%);
     border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);display:flex;gap:14px;align-items:flex-start;
     position:relative;overflow:hidden}
   .pms .em{font-size:30px;line-height:1}
-  .pms .b h3{margin:0 0 5px;font-size:16px;color:var(--rose-deep)}
+  .pms .b h3{margin:0 0 5px;font-family:var(--serif);font-size:16.5px;font-weight:600;color:var(--rose-deep)}
   .pms .b p{margin:0;color:var(--ink);font-size:14px;line-height:1.6}
   .pms .spark{position:absolute;top:10px;right:14px;font-size:15px;opacity:.8}
 
   .fert{margin-top:14px;border:1.5px solid var(--sun);background:linear-gradient(160deg,#fff 0%,#fff3e2 100%);
     border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);display:flex;gap:14px;align-items:flex-start;position:relative;overflow:hidden}
   .fert .em{font-size:30px;line-height:1}
-  .fert .b h3{margin:0 0 5px;font-size:16px;color:var(--sun-deep)}
+  .fert .b h3{margin:0 0 5px;font-family:var(--serif);font-size:16.5px;font-weight:600;color:var(--sun-deep)}
   .fert .b p{margin:0;color:var(--ink);font-size:14px;line-height:1.6}
   .fert .b p.disc{margin-top:8px;color:var(--muted);font-size:12px}
   .fert .spark{position:absolute;top:10px;right:14px;font-size:15px;opacity:.8}
@@ -129,10 +140,13 @@
     border-radius:14px;padding:13px;font-size:15px;font-family:inherit}
   label.f{display:block;font-size:13px;color:var(--muted);margin:16px 0 0;font-weight:600}
 
-  button.cta{margin-top:18px;width:100%;border:none;border-radius:16px;padding:15px;font-size:15px;font-weight:800;
-    color:#fff;background:linear-gradient(135deg,var(--rose),var(--rose-deep));cursor:pointer;
-    box-shadow:0 10px 22px -8px var(--rose-deep)}
+  button.cta{margin-top:18px;width:100%;border:none;border-radius:15px;padding:15px;font-size:15px;font-weight:700;
+    color:#fff;background:linear-gradient(135deg,var(--rose),var(--rose-deep));cursor:pointer;letter-spacing:.01em;
+    box-shadow:0 10px 24px -10px var(--rose-deep)}
   button.cta:active{filter:brightness(.96)}
+  .mini{margin-top:16px;width:100%;background:var(--card2);color:var(--rose-deep);border:1px solid var(--line);
+    border-radius:13px;padding:11px;font-size:13.5px;font-weight:600;font-family:inherit;cursor:pointer;transition:.12s}
+  .mini:active{transform:scale(.985)}
   .ghost{background:#0000;color:var(--muted);border:1px solid var(--line);margin-top:10px;width:100%;
     border-radius:14px;padding:12px;font-size:13px;cursor:pointer}
 
@@ -201,19 +215,18 @@
 </div>
 <div class="wrap">
   <header class="top">
-    <div>
-      <div class="hi">Hello, <b>Dana</b> 🌙</div>
+    <div class="head-l">
+      <div class="hi" id="greetLine">Hello Dana</div>
       <div class="date" id="todayDate"></div>
     </div>
-    <div class="avatar">D</div>
+    <div class="head-r">
+      <button class="spk" onclick="speakBriefing()" aria-label="Play greeting">🔊</button>
+      <div class="avatar">D</div>
+    </div>
   </header>
 
   <!-- ============ HOME ============ -->
   <div class="page active" id="page-home">
-    <div class="card greet" id="greetCard">
-      <button class="spk" onclick="speakBriefing()" aria-label="play">🔊</button>
-      <div class="g-text"><b id="greetLine">Hello, Dana</b><div id="briefLine" class="bl"></div></div>
-    </div>
     <section class="hero">
       <div class="glow" id="heroGlow"></div>
       <span class="phase-pill" id="phasePill">—</span>
@@ -224,7 +237,7 @@
             <circle id="ringProg" cx="54" cy="54" r="47" fill="none" stroke="url(#g)" stroke-width="9"
               stroke-linecap="round" stroke-dasharray="295" stroke-dashoffset="295"/>
             <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stop-color="#ff9fc4"/><stop offset="1" stop-color="#ffd9b0"/>
+              <stop offset="0" stop-color="#e8669a"/><stop offset="1" stop-color="#ecb37f"/>
             </linearGradient></defs>
           </svg>
           <div class="center"><div class="big" id="dayNum">–</div><div class="lbl">cycle day</div></div>
@@ -234,7 +247,7 @@
           <p class="sub" id="phaseSub">—</p>
         </div>
       </div>
-      <button class="cta" onclick="openSheet()">🩸 Update cycle date</button>
+      <button class="mini" onclick="openSheet()">🩸 Period started / edit cycle</button>
     </section>
 
     <div id="pmsCard"></div>
