@@ -454,10 +454,20 @@ function go(p){
 
 /* ---------- voice: talking greeting + recommendation ---------- */
 let HE_VOICE=null, greeted=false;
-function loadVoices(){ try{ const vs=window.speechSynthesis.getVoices(); HE_VOICE=vs.find(v=>/he|iw/i.test(v.lang))||HE_VOICE; }catch(e){} }
+function loadVoices(){ try{
+  const he=window.speechSynthesis.getVoices().filter(v=>/he|iw/i.test(v.lang));
+  if(!he.length) return;
+  const score=v=>{ const n=((v.name||'')+' '+(v.voiceURI||'')).toLowerCase(); let s=0;
+    if(/enhanced|premium|neural|siri/.test(n)) s+=4;   // high-quality downloadable voices
+    if(v.localService) s+=1;                            // on-device = better quality
+    return s; };
+  he.sort((a,b)=>score(b)-score(a));
+  HE_VOICE=he[0];
+}catch(e){} }
 if('speechSynthesis' in window){ loadVoices(); window.speechSynthesis.onvoiceschanged=loadVoices; }
 function speak(text){ if(!('speechSynthesis' in window)) return; try{ const sp=window.speechSynthesis; sp.cancel();
-  const u=new SpeechSynthesisUtterance(text); u.lang='he-IL'; if(HE_VOICE)u.voice=HE_VOICE; u.rate=1; u.pitch=1.05; sp.speak(u); }catch(e){} }
+  const u=new SpeechSynthesisUtterance(text); u.lang='he-IL'; if(HE_VOICE)u.voice=HE_VOICE;
+  u.rate=0.96; u.pitch=1.0; sp.speak(u); }catch(e){} }
 function buildBriefing(){
   const c=compute(); const h=new Date().getHours();
   const greet=(h<5?'לילה טוב':h<12?'בוקר טוב':h<17?'צהריים טובים':h<21?'ערב טוב':'לילה טוב')+', דנה';
