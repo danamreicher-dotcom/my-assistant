@@ -788,7 +788,13 @@ document.getElementById('modal').addEventListener('click',e=>{ if(e.target.id===
 })();
 ['pointerdown','keydown','touchend'].forEach(ev=>window.addEventListener(ev, autoGreet, {once:true}));
 setTimeout(autoGreet, 700);
-if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(()=>{}); }
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').then(reg=>{ try{reg.update();}catch(e){} }).catch(()=>{});
+  let _swReloaded=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{ if(_swReloaded)return; _swReloaded=true; location.reload(); });
+  // re-check for a new version each time the app comes back to the foreground
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ navigator.serviceWorker.getRegistration().then(r=>{ try{r&&r.update();}catch(e){} }); } });
+}
 </script>
 </body>
 </html>
