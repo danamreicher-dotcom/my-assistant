@@ -79,6 +79,14 @@
   .pms .b p{margin:0;color:var(--ink);font-size:14px;line-height:1.6}
   .pms .spark{position:absolute;top:10px;left:14px;font-size:15px;opacity:.8}
 
+  /* talking greeting + recommendation */
+  .greet{display:flex;align-items:center;gap:14px;padding:16px 18px;margin-bottom:14px}
+  .greet .spk{flex:0 0 auto;width:48px;height:48px;border-radius:50%;border:none;cursor:pointer;font-size:21px;
+    background:linear-gradient(135deg,var(--rose),var(--gold));color:#fff;box-shadow:0 6px 16px -6px var(--rose-deep);transition:.12s}
+  .greet .spk:active{transform:scale(.92)}
+  .greet .g-text b{font-size:18px}
+  .greet .bl{font-size:13px;color:var(--muted);margin-top:3px;line-height:1.45}
+
   .pad{padding:18px}
   .pad h2{margin:0 0 4px;font-size:18px}
   .pad .lead{margin:0 0 14px;color:var(--muted);font-size:13px}
@@ -177,6 +185,10 @@
 
   <!-- ============ HOME ============ -->
   <div class="page active" id="page-home">
+    <div class="card greet" id="greetCard">
+      <button class="spk" onclick="speakBriefing()" aria-label="השמעה">🔊</button>
+      <div class="g-text"><b id="greetLine">שלום, דנה</b><div id="briefLine" class="bl"></div></div>
+    </div>
     <section class="hero">
       <div class="glow" id="heroGlow"></div>
       <span class="phase-pill" id="phasePill">—</span>
@@ -440,6 +452,33 @@ function go(p){
   if(p==='settings'){ renderSettings(); }
 }
 
+/* ---------- voice: talking greeting + recommendation ---------- */
+let HE_VOICE=null, greeted=false;
+function loadVoices(){ try{ const vs=window.speechSynthesis.getVoices(); HE_VOICE=vs.find(v=>/he|iw/i.test(v.lang))||HE_VOICE; }catch(e){} }
+if('speechSynthesis' in window){ loadVoices(); window.speechSynthesis.onvoiceschanged=loadVoices; }
+function speak(text){ if(!('speechSynthesis' in window)) return; try{ const sp=window.speechSynthesis; sp.cancel();
+  const u=new SpeechSynthesisUtterance(text); u.lang='he-IL'; if(HE_VOICE)u.voice=HE_VOICE; u.rate=1; u.pitch=1.05; sp.speak(u); }catch(e){} }
+function buildBriefing(){
+  const c=compute(); const h=new Date().getHours();
+  const greet=(h<5?'לילה טוב':h<12?'בוקר טוב':h<17?'צהריים טובים':h<21?'ערב טוב':'לילה טוב')+', דנה';
+  let brief;
+  if(!c){ brief='בואי נגדיר את המחזור כדי שאוכל להמליץ לך מתי לקבוע דברים.'; }
+  else {
+    const dToPeak=(c.ovDay-1)-c.day;
+    if(c.phase==='ovulation') brief='את בימי השיא שלך - היום מצוין לצלם סרטונים, לקבוע פגישות ולהשיק.';
+    else if(c.phase==='menstrual') brief='היום יום מנוחה. שמרי אנרגיה ואל תקבעי דברים תובעניים.';
+    else if(dToPeak>=1 && dToPeak<=4) brief='עוד '+dToPeak+' ימים מתחילים ימי השיא שלך - כדאי לשמור את הצילומים והפגישות הגדולות לימים האלה.';
+    else if(c.phase==='follicular') brief='האנרגיה עולה - זמן טוב לתכנן ולהתחיל דברים חדשים.';
+    else brief='ימי סיום ועריכה. פחות מתאים להתחלות גדולות - התמקדי בלסגור קצוות.';
+  }
+  return {greet,brief};
+}
+function setGreeting(){ const b=buildBriefing();
+  const gl=document.getElementById('greetLine'), bl=document.getElementById('briefLine');
+  if(gl)gl.textContent=b.greet; if(bl)bl.textContent=b.brief; }
+function speakBriefing(){ const b=buildBriefing(); speak(b.greet+'. '+b.brief); }
+function autoGreet(){ if(greeted)return; greeted=true; speakBriefing(); }
+
 /* ---------- pre-period reassurance (the "mirror lies" card) ---------- */
 const PMS_MSGS = [
   {em:'🪞', t:'הראי משקר היום', p:'את ב-3-4 הימים שלפני המחזור. האסטרוגן צלל ואיתו גם תחושת הביטחון - זה הורמונלי, לא אמיתי. עוד כמה ימים הוא חוזר, ואיתו גם את.'},
@@ -458,6 +497,7 @@ function renderPms(c){
 function render(){
   const now = new Date();
   document.getElementById('todayDate').textContent = "יום "+HE_DAYS[now.getDay()]+", "+fmt(startOfDay(now));
+  setGreeting();
   const c = compute();
   if(!c){
     document.getElementById('phaseTitle').textContent='בואי נגדיר את המחזור';
@@ -710,6 +750,9 @@ function gcalSyncNow(){
   // silently keep Google Calendar in sync with the current cycle (no taps)
   if(gcal.connected()){ setTimeout(()=>gcal.sync(false), 1500); }
 })();
+// talk on open: try right away (works on desktop/Android), and on the first tap (iOS needs a gesture)
+['pointerdown','keydown','touchend'].forEach(ev=>window.addEventListener(ev, autoGreet, {once:true}));
+setTimeout(autoGreet, 700);
 // keep the date current whenever the app is reopened / refocused (fixes stale day on PWA resume)
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden) render(); });
 window.addEventListener('focus',render);
