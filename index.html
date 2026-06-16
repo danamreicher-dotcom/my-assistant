@@ -237,6 +237,9 @@
       <div class="body"><h3 id="adviceTitle">—</h3><p id="adviceText">—</p></div>
     </div>
 
+    <div class="section-title">Today's schedule</div>
+    <div class="card" id="calList"></div>
+
     <div class="section-title">How are you feeling today?</div>
     <div class="card pad" id="homeCheckin"></div>
 
@@ -552,7 +555,7 @@ function render(){
     document.getElementById('adviceTitle').textContent='Welcome 💕';
     document.getElementById('adviceText').textContent='Once you set your cycle, I will tell you each day what is best to do based on your energy.';
     openSheet();
-    renderPms(null); renderHomeCheckin(); renderModMetas();
+    renderPms(null); renderHomeCheckin(); renderModMetas(); renderCalToday();
     return;
   }
   const p = PHASES[c.phase];
@@ -583,7 +586,7 @@ function render(){
     row.className='tl'+(k===c.phase?' now':'');
     row.innerHTML='<span class="dot" style="background:'+ph.glow+'"></span><div class="txt"><div class="t">'+ph.pill+'</div><div class="d">'+ranges[k]+'</div></div>'+(k===c.phase?'<span class="when">you are here</span>':'');
     tl.appendChild(row);});
-  renderPms(c); renderHomeCheckin(); renderModMetas();
+  renderPms(c); renderHomeCheckin(); renderModMetas(); renderCalToday();
 }
 
 /* ---------- check-in ---------- */
@@ -745,8 +748,29 @@ const gcal = {
       }catch(err){}
     }
     this.save(d); return true;
+  },
+  async listToday(){
+    const ok=await this.auth(false); if(!ok||!this.token) return null;
+    const now=new Date();
+    const s=new Date(now.getFullYear(),now.getMonth(),now.getDate()).toISOString();
+    const e=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1).toISOString();
+    const url='https://www.googleapis.com/calendar/v3/calendars/primary/events?singleEvents=true&orderBy=startTime&timeMin='+encodeURIComponent(s)+'&timeMax='+encodeURIComponent(e);
+    try{ const r=await fetch(url,{headers:{'Authorization':'Bearer '+this.token}}); if(!r.ok) return null; const j=await r.json(); return j.items||[]; }catch(err){ return null; }
   }
 };
+function renderCalToday(){
+  const el=document.getElementById('calList'); if(!el) return;
+  if(!gcal.connected()){ el.innerHTML='<div class="empty">Connect Google Calendar in Settings to see your day here.</div>'; return; }
+  el.innerHTML='<div class="empty">Loading your day…</div>';
+  gcal.listToday().then(items=>{
+    if(items==null){ el.innerHTML='<div class="empty">Could not load your calendar.</div>'; return; }
+    if(!items.length){ el.innerHTML='<div class="empty">Nothing booked today 🌸</div>'; return; }
+    el.innerHTML=items.map(ev=>{
+      const t = (ev.start&&ev.start.dateTime) ? new Date(ev.start.dateTime).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : 'all day';
+      return '<div class="item"><span class="badge">'+t+'</span><div class="txt">'+((ev.summary||'(no title)'))+'</div></div>';
+    }).join('');
+  });
+}
 function gcalConnect(){
   const id=document.getElementById('gcalClientId').value.trim();
   if(!id){ toast('Paste your Client ID first'); return; }
