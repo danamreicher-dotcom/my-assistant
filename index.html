@@ -639,7 +639,7 @@ function checkinHTML(){
 function todayCheckinBlock(){
   return '<h2>How are you feeling today?</h2><p class="lead">A short daily log - this is how the assistant learns your patterns over time.</p>'
     +checkinHTML()
-    +'<label class="f">Anything to add?</label><textarea class="f" id="noteToday" placeholder="A word or two about today...">'+((getToday()||{}).note||'')+'</textarea>'
+    +'<label class="f">Anything to add?</label><textarea class="f" id="noteToday" oninput="saveNoteLive(this.value)" placeholder="A word or two about today...">'+((getToday()||{}).note||'')+'</textarea>'
     +'<button class="cta" onclick="saveNote()">Save how you feel</button>';
 }
 function renderHomeCheckin(){ document.getElementById('homeCheckin').innerHTML=checkinHTML(); }
@@ -655,10 +655,14 @@ function setEnergy(i){ const {d,t}=ensureToday(); t.energy=i; store.set(d); refr
 function toggleSym(s){ const {d,t}=ensureToday(); t.symptoms=t.symptoms||[];
   const i=t.symptoms.indexOf(s); if(i>=0)t.symptoms.splice(i,1); else t.symptoms.push(s);
   store.set(d); refreshCheckins(); }
+function saveNoteLive(v){ const {d,t}=ensureToday(); t.note=v; try{localStorage.setItem('dana_assistant',JSON.stringify(d));}catch(e){} }
 function saveNote(){ const {d,t}=ensureToday(); t.note=document.getElementById('noteToday').value; store.set(d);
   toast('Saved 💕'); renderLog(); }
 function refreshCheckins(){ renderHomeCheckin();
-  if(document.getElementById('page-today').classList.contains('active')){ document.getElementById('fullCheckin').innerHTML=todayCheckinBlock(); } }
+  if(document.getElementById('page-today').classList.contains('active')){
+    document.getElementById('fullCheckin').innerHTML=todayCheckinBlock();
+    if(document.getElementById('checkinLog')) renderLog();
+  } }
 function renderLog(){
   const d=store.get(); const logs=(d.checkins||[]).slice(0,7);
   const el=document.getElementById('checkinLog');
