@@ -1,4 +1,4 @@
-const CACHE = 'dana-assistant-v20';
+const CACHE = 'dana-assistant-v21';
 const ASSETS = ['./','./index.html','./manifest.json','./icon.svg'];
 
 self.addEventListener('install', e => {

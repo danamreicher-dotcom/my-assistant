@@ -84,6 +84,10 @@
   .hero p.sub{margin:0;color:var(--muted);font-size:13.5px;line-height:1.55}
   .page h2{font-family:var(--serif);font-weight:600;letter-spacing:-.01em}
 
+  .hero-stats{display:flex;gap:10px;margin-top:18px}
+  .hstat{flex:1;background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:12px 13px;text-align:center}
+  .hstat .n{font-family:var(--serif);font-size:22px;font-weight:600;color:var(--ink);line-height:1}
+  .hstat .l{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.25}
   .stat-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
   .stat{background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:14px}
   .stat .k{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
@@ -247,6 +251,7 @@
           <p class="sub" id="phaseSub">—</p>
         </div>
       </div>
+      <div class="hero-stats" id="heroStats"></div>
       <button class="mini" onclick="openSheet()">🩸 Period started / edit cycle</button>
     </section>
 
@@ -589,6 +594,7 @@ function render(){
     document.getElementById('adviceTitle').textContent='Welcome 💕';
     document.getElementById('adviceText').textContent='Once you set your cycle, I will tell you each day what is best to do based on your energy.';
     openSheet();
+    var hs=document.getElementById('heroStats'); if(hs) hs.innerHTML='';
     renderPms(null); renderFertile(null); renderHomeCheckin(); renderModMetas(); renderCalToday();
     return;
   }
@@ -602,6 +608,13 @@ function render(){
   document.getElementById('adviceEm').textContent=p.em;
   document.getElementById('adviceTitle').textContent=p.adviceT;
   document.getElementById('adviceText').textContent=p.adviceP;
+  (function(){ const el=document.getElementById('heroStats'); if(!el) return;
+    const today=startOfDay(new Date());
+    const ovD=Math.round((c.ovDate-today)/DAY), perD=Math.round((c.nextDate-today)/DAY);
+    const ov = ovD>0 ? {n:ovD, l:(ovD===1?'day':'days')+' to ovulation 🥚'} : ovD===0 ? {n:'Today', l:'ovulating 🥚'} : {n:'✓', l:'ovulation passed 🥚'};
+    const per = perD>0 ? {n:perD, l:(perD===1?'day':'days')+' to period 🌸'} : {n:'Today', l:'period due 🌸'};
+    el.innerHTML='<div class="hstat"><div class="n">'+ov.n+'</div><div class="l">'+ov.l+'</div></div>'
+                +'<div class="hstat"><div class="n">'+per.n+'</div><div class="l">'+per.l+'</div></div>'; })();
   document.getElementById('dayNum2').textContent=c.day;
   document.getElementById('phasePill2').textContent=p.pill;
   document.getElementById('phaseTitle2').textContent=p.title;
