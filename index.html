@@ -411,7 +411,7 @@
 const DAY = 86400000;
 const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-const SYMPTOMS = ["Tired","Cramps","Sweet cravings","Sensitive","Low energy","Headache","Bloated","Good mood"];
+const SYMPTOMS = ["Tired","Cramps","Sweet cravings","Sensitive","Low energy","Headache","Bloated","Breakout","Good mood"];
 const MOODS = ["😞","😐","🙂","😊","😍"];
 const ENERGY = ["🪫","🔋","⚡","🔥"];
 
@@ -561,11 +561,20 @@ const PMS_MSGS = [
   {em:'🫠', t:'A known bug, not a feature', p:'Two or three days before your period, self-criticism spikes 10x. That is the PMS talking, not your face. Do not believe it today.'},
   {em:'💧', t:'Exactly the point in the month', p:'If everything looks less shiny right now - this is exactly when that is expected. You have not changed. Your hormones did. And they will come back.'}
 ];
+const SKIN_MSGS = [
+  {em:'🌋', t:'Breakout week - not your fault', p:'Progesterone is peaking, so your skin makes extra oil this week. Chin and jawline pimples now are textbook hormonal. Salicylic acid, spot-treat at night, keep moisturizing - and no squeezing. It calms down when your period starts.'},
+  {em:'🧴', t:'Skin on hormonal mode', p:'This is the oiliest week of your cycle - totally normal. Fresh pillowcase, gentle cleanser, hands off your face. Deep painful ones every month? Worth one dermatologist visit.'}
+];
 function renderPms(c){
   const el=document.getElementById('pmsCard'); if(!el) return;
-  if(!c || c.day < c.len-3){ el.innerHTML=''; return; }
-  const m=PMS_MSGS[(c.len-c.day)%PMS_MSGS.length];
-  el.innerHTML='<div class="pms"><span class="spark">✨</span><div class="em">'+m.em+'</div><div class="b"><h3>'+m.t+'</h3><p>'+m.p+'</p></div></div>';
+  if(!c){ el.innerHTML=''; return; }
+  if(c.day >= c.len-3){
+    const m=PMS_MSGS[(c.len-c.day)%PMS_MSGS.length];
+    el.innerHTML='<div class="pms"><span class="spark">✨</span><div class="em">'+m.em+'</div><div class="b"><h3>'+m.t+'</h3><p>'+m.p+'</p></div></div>';
+  } else if(c.day >= c.len-9){
+    const m=SKIN_MSGS[(c.len-c.day)%SKIN_MSGS.length];
+    el.innerHTML='<div class="pms"><span class="spark">🫧</span><div class="em">'+m.em+'</div><div class="b"><h3>'+m.t+'</h3><p>'+m.p+'</p></div></div>';
+  } else { el.innerHTML=''; }
 }
 const FERT_MSGS = [
   {em:'🌂', t:'Danger zone: fertile window', p:'Your most fertile days are here. If a baby is NOT on this month’s to-do list, this is the "bring an umbrella" stretch. ☂️'},
