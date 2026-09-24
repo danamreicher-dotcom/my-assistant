@@ -242,22 +242,24 @@ const INST={
 };
 
 /* ================= PLAYBACK CLOCK ================= */
+let sleepT=null, rafOn=false; function kick(){ if(!rafOn){ rafOn=true; requestAnimationFrame(loop); } }
 let playing=false, t0=0, idx=0, timer=null, pos=0, perfStart=0;
 function now(){ if(!playing) return pos; return ac ? ac.currentTime-t0 : (performance.now()-perfStart)/1000; }
 function play(from=0){
   from=Math.max(0,Math.min(from,END-.2));
-  try{ if(!ac) initAudio(); ac.resume(); }catch(e){ ac=null; }
+  try{ if(!ac) initAudio(); clearTimeout(sleepT); ac.resume(); }catch(e){ ac=null; }
   if(ac){ killRun(); newRun(); t0=ac.currentTime+.08-from; }
   else perfStart=performance.now()-from*1000;
   idx=EV.findIndex(e=>e.t>=from); if(idx<0) idx=EV.length;
   playing=true; clearInterval(timer); timer=setInterval(tick,40); tick();
-  bigPlay.hidden=true; playBtn.textContent='■ עצור';
+  bigPlay.hidden=true; playBtn.textContent='■ עצור'; kick();
 }
 function stop(atEnd){
   pos=atEnd?END:now(); playing=false; clearInterval(timer); if(ac) killRun();
   playBtn.textContent=atEnd?'↺ שוב!':'▶ להמשיך';
   if(atEnd){ bigPlay.hidden=false; bigPlay.innerHTML='<span>↺</span>שוב!'; }
-  lastF=-1;
+  lastF=-1; kick();
+  if(ac) sleepT=setTimeout(()=>{ if(!playing) ac.suspend(); },600);
 }
 function tick(){
   const n=now();
@@ -540,7 +542,7 @@ track.addEventListener('keydown',e=>{ if(e.key==='ArrowLeft') play(now()+3); els
 
 let lastF=-1, started=false;
 const POSTER=S[2]+3.2;
-function resize(){ const r=cv.getBoundingClientRect(); const dpr=Math.min(2,window.devicePixelRatio||1); cv.width=Math.round(r.width*dpr); cv.height=Math.round(r.width*dpr*H/W); lastF=-1; }
+function resize(){ const r=cv.getBoundingClientRect(); const dpr=Math.min(2,window.devicePixelRatio||1); cv.width=Math.round(r.width*dpr); cv.height=Math.round(r.width*dpr*H/W); lastF=-1; kick(); }
 window.addEventListener('resize',resize);
 function loop(){
   const t=playing?now():pos;
@@ -553,10 +555,10 @@ function loop(){
   track.setAttribute('aria-valuenow',Math.round(t));
   let cur=0; CHAPTERS.forEach(([,at],i)=>{ if(t>=at) cur=i; });
   markBtns.forEach((b,i)=>b.classList.toggle('on',started&&i===cur));
-  requestAnimationFrame(loop);
+  if(playing) requestAnimationFrame(loop); else rafOn=false;
 }
 resize();
-(document.fonts&&document.fonts.load?document.fonts.load(font(40)):Promise.resolve()).finally(()=>{ lastF=-1; });
-requestAnimationFrame(loop);
+(document.fonts&&document.fonts.load?document.fonts.load(font(40)):Promise.resolve()).finally(()=>{ lastF=-1; kick(); });
+kick();
 })();
 </script>
