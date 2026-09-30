@@ -11,7 +11,7 @@
   --ink:#171B26; --muted:#5A6275;
   --accent:#2B44C9; --accent-ink:#FFFFFF; --accent-soft:#E3E7FB;
   --brass:#B07A1A; --brass-soft:#F6EAD2;
-  --ghost:#A9B0C0;
+  --ghost:#A9B0C0; --rec:#C62828; --rec-soft:#FBE3E3; --bassnote:#1F7A5C;
   --display:'Secular One','Assistant',system-ui,sans-serif;
   --body:'Assistant',system-ui,-apple-system,'Segoe UI',sans-serif;
   --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
@@ -21,12 +21,12 @@
   --bg:#10131B; --surface:#181C27; --surface-2:#1F2431; --line:#2C3242;
   --ink:#E8EBF2; --muted:#9AA3B8;
   --accent:#8EA0FF; --accent-ink:#0E1220; --accent-soft:#252C4A;
-  --brass:#E3B25A; --brass-soft:#3A2F1A; --ghost:#4A5268; color-scheme:dark }}
+  --brass:#E3B25A; --brass-soft:#3A2F1A; --ghost:#4A5268; --rec:#FF6B6B; --rec-soft:#3A1E22; --bassnote:#5CD6A8; color-scheme:dark }}
 :root[data-theme="dark"]{
   --bg:#10131B; --surface:#181C27; --surface-2:#1F2431; --line:#2C3242;
   --ink:#E8EBF2; --muted:#9AA3B8;
   --accent:#8EA0FF; --accent-ink:#0E1220; --accent-soft:#252C4A;
-  --brass:#E3B25A; --brass-soft:#3A2F1A; --ghost:#4A5268; color-scheme:dark }
+  --brass:#E3B25A; --brass-soft:#3A2F1A; --ghost:#4A5268; --rec:#FF6B6B; --rec-soft:#3A1E22; --bassnote:#5CD6A8; color-scheme:dark }
 
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;margin:0}
@@ -111,6 +111,27 @@ select{background:var(--surface-2);border:1px solid var(--line);border-radius:8p
 .legend i{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-inline-end:4px}
 .ghostbtn{border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:4px 12px;font-size:14px}
 
+.bassbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.recbtn{border:1px solid var(--rec);background:var(--rec-soft);color:var(--rec);border-radius:12px;padding:10px 18px;font-weight:700;display:inline-flex;gap:8px;align-items:center}
+.recbtn::before{content:"";width:12px;height:12px;border-radius:50%;background:var(--rec)}
+.recbtn.armed{animation:blink 1s steps(2) infinite}
+.recbtn.on{background:var(--rec);color:var(--surface)}
+.recbtn.on::before{background:var(--surface)}
+@keyframes blink{50%{opacity:.45}}
+.chip{font-size:13px;border-radius:999px;padding:3px 10px;background:var(--surface-2);border:1px solid var(--line);color:var(--muted)}
+.chip.ok{border-color:var(--bassnote);color:var(--bassnote)}
+.bassopts{display:flex;gap:10px 16px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.bassopts label{display:inline-flex;gap:6px;align-items:center;font-size:14px;color:var(--muted)}
+.bassopts input[type=checkbox]{accent-color:var(--accent);width:17px;height:17px}
+.bassopts input[type=range]{width:110px}
+.roll{position:relative;height:120px;margin-top:14px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);overflow:hidden;direction:ltr}
+.roll .bl{position:absolute;top:0;bottom:0;width:1px;background:var(--line)}
+.roll .bl.bar{background:var(--ghost)}
+.roll .nt{position:absolute;height:12px;border-radius:3px;background:var(--bassnote);font:600 9px/12px var(--mono);color:var(--surface);padding-inline:2px;overflow:hidden;white-space:nowrap}
+.roll .ph{position:absolute;top:0;bottom:0;width:2px;background:var(--brass);display:none}
+.roll .empty{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:14px;direction:rtl;text-align:center;padding:10px}
+.note{font-size:13px;color:var(--muted);margin:10px 0 0}
+.note a{color:var(--accent)}
 footer{color:var(--muted);font-size:13px;display:flex;gap:6px 16px;flex-wrap:wrap}
 kbd{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 5px;background:var(--surface)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -156,6 +177,30 @@ kbd{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-b
     </div>
   </section>
 
+  <section class="panel" aria-labelledby="bassH">
+    <div class="head"><h2 id="bassH">בס</h2>
+      <span class="bassbar"><span class="chip" id="midiChip">פסנתר לא מחובר</span><button class="ghostbtn" id="midiBtn">חיבור פסנתר (MIDI)</button></span></div>
+    <div class="bassbar">
+      <button class="recbtn" id="recBtn">הקלטת בס לבית</button>
+      <label class="label">אורך
+        <select id="loopLen"><option value="1">תיבה אחת</option><option value="2">2 תיבות</option><option value="4" selected>4 תיבות</option><option value="8">8 תיבות</option></select></label>
+      <label class="label">יישור לקצב
+        <select id="quant"><option value="1" selected>מלא</option><option value="0.5">חצי</option><option value="0">כבוי</option></select></label>
+      <button class="ghostbtn" id="bassClear">מחיקת הבס של הבית</button>
+    </div>
+    <div class="roll" id="roll"><div class="ph" id="ph"></div></div>
+    <div class="bassopts">
+      <label>יד שמאל עד
+        <select id="split"><option value="55">G3</option><option value="60" selected>C4 (דו אמצעי)</option><option value="64">E4</option><option value="128">כל המקלדת</option></select></label>
+      <label>אוקטבה
+        <select id="bassOct"><option value="-12">נמוך יותר</option><option value="0" selected>כמו שניגנתי</option><option value="12">גבוה יותר</option></select></label>
+      <label>עוצמת בס <input type="range" id="bassVol" min="0" max="100" value="80"></label>
+      <label><input type="checkbox" id="monitor" checked> לשמוע את הבס בזמן שאני מנגנת</label>
+      <label><input type="checkbox" id="qwerty"> לנגן בס במקלדת המחשב</label>
+    </div>
+    <p class="note" id="bassHelp">איך זה עובד: מחברים את הפסנתר, לוחצים על "הקלטת בס", מחכים לספירה ומנגנים ביד שמאל. בסוף האורך שבחרת הבס מתחיל לחזור לבד, בכל טמפו שתבחרי. לבית ולפזמון יש בס נפרד. אם לפזמון עוד אין בס, מתנגן הבס של הבית.</p>
+  </section>
+
   <section class="panel" aria-labelledby="stylesH">
     <div class="head"><h2 id="stylesH">סגנון</h2><span class="label">החלפה בזמן נגינה נכנסת בתחילת התיבה הבאה</span></div>
     <div class="styles" id="styles"></div>
@@ -193,7 +238,9 @@ kbd{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-b
     <span><kbd>F</kbd> פיל</span>
     <span><kbd>1</kbd>/<kbd>2</kbd> בית/פזמון</span>
     <span><kbd>↑</kbd>/<kbd>↓</kbd> טמפו</span>
+    <span id="qwNote" hidden>במצב מקלדת: <kbd>A</kbd>–<kbd>K</kbd> קלידים לבנים, <kbd>W</kbd><kbd>E</kbd><kbd>T</kbd><kbd>Y</kbd><kbd>U</kbd> שחורים, <kbd>Z</kbd>/<kbd>X</kbd> אוקטבה. T ו-F משמשים אז לנגינה.</span>
     <span id="kitNote">טוען ערכת תופים…</span>
+    <span>בס: דגימות Electric Bass מ-tonejs-instruments (Nicholaus Brosowsky, רישיון CC-BY 3.0).</span>
   </footer>
 </main>
 
@@ -409,14 +456,16 @@ function countPat(st){ const n=steps(st), a=Array(n).fill('.'); for(let i=0;i<n;
 let playing = false, timer = null, nextTime = 0, stepIdx = 0, lookahead = 0.12;
 let bar = null;          // {pat, kind:'main'|'fill'|'count', crash}
 let pendingStyle = null, pendingSection = null, fillReq = false, crashNext = false, countLeft = 0, barsIn = 0;
+let songBeat = 0, secStartBeat = 0; const anchors = [];
 const visQ = [];
 
 function startBar(){
   if (pendingStyle){ style = pendingStyle; pendingStyle = null; barsIn = 0; if (!$('lockTempo').checked) setBpm(style.bpm); applyStyleUI(); }
   if (countLeft > 0){ countLeft--; bar = {pat: countPat(style), kind:'count'}; return; }
   let crash = false;
-  if (crashNext){ crash = true; crashNext = false; if (pendingSection){ section = pendingSection; pendingSection = null; barsIn = 0; } }
-  if (pendingSection && !$('transFill').checked){ section = pendingSection; pendingSection = null; barsIn = 0; crash = true; }
+  if (crashNext){ crash = true; crashNext = false; if (pendingSection){ section = pendingSection; pendingSection = null; barsIn = 0; secStartBeat = songBeat; } }
+  if (pendingSection && !$('transFill').checked){ section = pendingSection; pendingSection = null; barsIn = 0; crash = true; secStartBeat = songBeat; }
+  recBarStart();
   barsIn++;
   const auto = +$('autoFill').value;
   const doFill = fillReq || (pendingSection && $('transFill').checked) || (auto && barsIn % auto === 0);
@@ -439,12 +488,15 @@ function playStep(i, t){
       hit(k, Math.max(ctx.currentTime, when + jit), v);
     }
   }
+  if (bar.kind !== 'count') bassStep(t);
   visQ.push({t: when, i, bar});
 }
 function tick(){
   while (nextTime < ctx.currentTime + lookahead){
     if (stepIdx === 0) startBar();
+    anchors.push({t: nextTime, beat: songBeat, spb: 60/bpm}); if (anchors.length > 400) anchors.splice(0, 200);
     playStep(stepIdx, nextTime);
+    songBeat += 1/style.spb;
     nextTime += 60/bpm/style.spb;
     stepIdx = (stepIdx + 1) % steps(style);
   }
@@ -453,10 +505,11 @@ function tick(){
 document.addEventListener('visibilitychange', () => { lookahead = document.hidden ? 1.2 : 0.12; });
 
 let wake = null;
-async function start(){
+async function start(forceCount){
   initAudio(); if (ctx.state === 'suspended') await ctx.resume();
   playing = true; stepIdx = 0; barsIn = 0; crashNext = false; fillReq = false; pendingSection = null;
-  countLeft = $('countIn').checked ? 1 : 0;
+  countLeft = (forceCount || $('countIn').checked) ? 1 : 0;
+  songBeat = -countLeft * style.beats; secStartBeat = 0; anchors.length = 0;
   nextTime = ctx.currentTime + 0.06; visQ.length = 0;
   tick(); $('play').classList.add('on');
   try { wake = await navigator.wakeLock?.request('screen'); } catch(e){}
@@ -465,6 +518,7 @@ function stop(){
   playing = false; clearTimeout(timer); $('play').classList.remove('on');
   if (pendingStyle){ style = pendingStyle; pendingStyle = null; if (!$('lockTempo').checked) setBpm(style.bpm); applyStyleUI(); }
   if (pendingSection){ section = pendingSection; pendingSection = null; }
+  if (rec) cancelRec();
   bar = null; visQ.length = 0; syncSectionUI(); renderGrid(pat(style, section), false); lightBeat(-1); setStatus('מוכן');
   try { wake?.release(); } catch(e){} wake = null;
 }
@@ -510,6 +564,7 @@ function frame(){
       setStatus(b.kind === 'count' ? '<b>ספירה…</b>' : b.kind === 'fill' ? '<b>פיל!</b>' : `${style.name} · ${nm}`);
     }
   }
+  bassFrame();
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
@@ -537,6 +592,7 @@ STYLES.forEach(st => {
 function syncSectionUI(){
   ['A','B'].forEach(s => { const b = $('sec'+s); b.setAttribute('aria-pressed', section === s); b.classList.toggle('pending', pendingSection === s); });
   $('fill').classList.toggle('queued', fillReq);
+  bassUI();
 }
 function chooseSection(s){
   if (!playing){ section = s; pendingSection = null; syncSectionUI(); renderGrid(pat(style, section), false); return; }
@@ -569,6 +625,7 @@ knob('vol', v => v, v => { vol = v; store.set('vol', v); if (master) master.gain
 document.addEventListener('keydown', e => {
   if (e.target.closest('select, input[type=checkbox]') || e.metaKey || e.ctrlKey || e.altKey) return;
   if (e.target.matches('input[type=range]') && e.key.startsWith('Arrow')) return;
+  if (qwertyKey(e, true)) return;
   const k = e.key.toLowerCase();
   if (e.code === 'Space'){ e.preventDefault(); playing ? stop() : start(); }
   else if (e.code === 'KeyT' || k === 'א'){ tap(); }
@@ -578,6 +635,223 @@ document.addEventListener('keydown', e => {
   else if (e.key === 'ArrowUp'){ e.preventDefault(); setBpm(bpm + (e.shiftKey ? 5 : 1)); }
   else if (e.key === 'ArrowDown'){ e.preventDefault(); setBpm(bpm - (e.shiftKey ? 5 : 1)); }
 });
+
+
+/* ---------- bass: samples ---------- */
+const BASS_NOTES = [28,31,34,37,40,43,46,49,52,55,58,61];
+const bassBufs = {}; let bassOut = null;
+(async () => {
+  const dec = new (window.OfflineAudioContext || window.webkitOfflineAudioContext)(1, 1, 44100);
+  await Promise.all(BASS_NOTES.map(n => fetch(`bass/b${n}.mp3`).then(r => r.ok ? r.arrayBuffer() : Promise.reject())
+    .then(b => new Promise((ok, bad) => dec.decodeAudioData(b, ok, bad))).then(buf => { bassBufs[n] = buf; }).catch(() => {})));
+})();
+function bassNode(){
+  if (!bassOut){ bassOut = ctx.createGain(); bassOut.gain.value = bassVolGain(); bassOut.connect(master); }
+  return bassOut;
+}
+const bassVolGain = () => Math.pow(+$('bassVol').value/100, 1.5) * 1.1;
+function bassVoice(note, t, vel){
+  note += +$('bassOct').value;
+  let best = null, bd = 99;
+  for (const n of BASS_NOTES) if (bassBufs[n] && Math.abs(n - note) < bd){ bd = Math.abs(n - note); best = n; }
+  const g = ctx.createGain(), lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass'; lp.frequency.value = 900 + 2600 * vel;
+  let src;
+  if (best !== null){ src = ctx.createBufferSource(); src.buffer = bassBufs[best]; src.playbackRate.value = Math.pow(2, (note - best)/12); }
+  else { src = ctx.createOscillator(); src.type = 'triangle'; src.frequency.value = 440 * Math.pow(2, (note-69)/12); }
+  src.connect(lp); lp.connect(g); g.connect(bassNode());
+  const peak = 0.35 + 0.65 * vel;
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(peak, t + 0.006);
+  src.start(t);
+  return { release(at){ at = Math.max(at, t + 0.03); g.gain.cancelScheduledValues(at); g.gain.setValueAtTime(peak * 0.9, at); g.gain.exponentialRampToValueAtTime(0.0001, at + 0.09); try { src.stop(at + 0.12); } catch(e){} } };
+}
+
+/* ---------- bass: loops per section ---------- */
+let bass = store.get('bass', {A:null, B:null});
+const loopFor = sec => bass[sec] || (sec === 'B' ? bass.A : null);
+function qNotes(L){
+  const q = +$('quant').value, g = 1 / L.spb, out = [];
+  for (const n of L.notes){
+    const snap = x => x + (Math.round(x/g)*g - x) * q;
+    let s = snap(n.s), e = snap(n.e); if (e - s < g*0.5) e = s + Math.max(g*0.5, n.e - n.s);
+    if (s >= L.len - 1e-6) { s -= L.len; e -= L.len; }
+    out.push({s, e, n: n.n, v: n.v, odd: Math.abs(s/g - Math.round(s/g)) < 1e-6 && Math.round(s/g) % 2 === 1});
+  }
+  return out;
+}
+let qCache = new Map();
+function bassStep(t){
+  if (songBeat < 0) return;
+  if (rec && rec.phase === 'rec' && rec.sec === section) return;
+  const L = loopFor(section); if (!L || !L.notes.length) return;
+  let Q = qCache.get(L); if (!Q){ Q = qNotes(L); qCache.set(L, Q); }
+  const sb = 60/bpm, stepLen = 1/style.spb;
+  const pos = ((songBeat - secStartBeat) % L.len + L.len) % L.len;
+  for (const n of Q){
+    let d = n.s - pos; if (d < -1e-6) d += L.len;
+    if (d < stepLen - 1e-6){
+      let at = t + d * sb;
+      if (n.odd && style.spb !== 3) at += (swing/50 - 1) * sb / style.spb;
+      bassVoice(n.n, at, n.v).release(at + (n.e - n.s) * sb);
+    }
+  }
+}
+
+/* ---------- bass: recording ---------- */
+let rec = null;   // {sec, phase:'armed'|'rec'|'closing', start, len, spb, notes, open}
+function beatAt(t){
+  if (!anchors.length) return null;
+  let a = anchors[0];
+  for (let i = anchors.length - 1; i >= 0; i--) if (anchors[i].t <= t){ a = anchors[i]; break; }
+  return a.beat + (t - a.t) / a.spb;
+}
+function recBarStart(){
+  if (!rec) return;
+  if (rec.phase === 'armed'){ rec.phase = 'rec'; rec.start = songBeat; rec.sec = section; bassUI(); }
+  else if (rec.phase === 'rec' && songBeat >= rec.start + rec.len - 1e-6){
+    const data = {len: rec.len, spb: rec.spb, notes: rec.notes};
+    bass[rec.sec] = data; qCache = new Map(); secStartBeat = songBeat;
+    rec.phase = 'closing'; rec.closeAt = nextTime + 0.35; bassUI(); renderRoll();
+  }
+}
+function toggleRec(){
+  if (rec && rec.phase !== 'closing'){ cancelRec(); return; }
+  initAudio();
+  rec = {phase:'armed', sec: section, len: +$('loopLen').value * style.beats, spb: style.spb, notes: [], open: {}};
+  if (!playing) start(true);
+  bassUI();
+}
+function cancelRec(){ rec = null; bassUI(); }
+function recNoteOn(note, vel, t){
+  if (!rec || rec.phase === 'armed') return;
+  let b = beatAt(t); if (b === null) return;
+  b -= rec.start;
+  if (b < 0 && b > -0.5/rec.spb) b = 0;
+  if (b < 0 || b >= rec.len) return;
+  const n = {s: b, e: b + 0.25, n: note, v: vel}; rec.notes.push(n); rec.open[note] = n;
+  if (rec.phase === 'closing') qCache = new Map();
+  renderRoll();
+}
+function recNoteOff(note, t){
+  if (!rec || !rec.open[note]) return;
+  const b = beatAt(t); if (b !== null) rec.open[note].e = Math.min(rec.len, Math.max(rec.open[note].s + 0.05, b - rec.start));
+  delete rec.open[note];
+  if (rec.phase === 'closing') { qCache = new Map(); store.set('bass', bass); }
+}
+
+/* ---------- note input: MIDI + computer keyboard ---------- */
+const live = {};
+function inputTime(stamp){
+  const lag = (ctx.outputLatency || 0) + (ctx.baseLatency || 0);
+  const ago = stamp ? Math.max(0, (performance.now() - stamp) / 1000) : 0;
+  return ctx.currentTime - ago - lag;
+}
+function noteOn(note, vel, stamp){
+  if (note >= +$('split').value) return;
+  initAudio(); if (ctx.state === 'suspended') ctx.resume();
+  if ($('monitor').checked){ live[note]?.release(ctx.currentTime); live[note] = bassVoice(note, ctx.currentTime, vel); }
+  recNoteOn(note, vel, inputTime(stamp));
+}
+function noteOff(note, stamp){
+  if (live[note]){ live[note].release(ctx.currentTime); delete live[note]; }
+  if (ctx) recNoteOff(note, inputTime(stamp));
+}
+const PAGES = 'https://danamreicher-dotcom.github.io/my-assistant/drums/';
+function midiMsg(e){
+  const [st, d1, d2] = e.data, cmd = st & 0xf0;
+  if (cmd === 0x90 && d2 > 0) noteOn(d1, d2/127, e.timeStamp);
+  else if (cmd === 0x80 || (cmd === 0x90 && d2 === 0)) noteOff(d1, e.timeStamp);
+}
+function bindMidi(acc){
+  const names = [];
+  acc.inputs.forEach(inp => { inp.onmidimessage = midiMsg; names.push(inp.name); });
+  const chip = $('midiChip');
+  chip.textContent = names.length ? 'מחובר: ' + names.join(', ') : 'לא נמצא פסנתר. הכבל מחובר והפסנתר דלוק?';
+  chip.classList.toggle('ok', names.length > 0);
+  $('midiBtn').hidden = names.length > 0;
+}
+async function connectMidi(auto){
+  const chip = $('midiChip');
+  if (!navigator.requestMIDIAccess){ if (!auto) chip.innerHTML = `הדפדפן הזה לא תומך בפסנתר. פתחי ב-Chrome: <a href="${PAGES}" target="_blank" rel="noopener">${PAGES}</a>`; return; }
+  if (!auto) chip.textContent = 'מבקשת גישה… אם Chrome שואל, לחצי "אפשר"';
+  const slow = setTimeout(() => { if (!auto && !chip.classList.contains('ok')) chip.innerHTML = `עדיין אין תשובה. אם לא הופיעה שאלה, פתחי ב-Chrome את הכתובת: <a href="${PAGES}" target="_blank" rel="noopener">${PAGES}</a>`; }, 6000);
+  try {
+    const acc = await navigator.requestMIDIAccess(); clearTimeout(slow);
+    bindMidi(acc); acc.onstatechange = () => bindMidi(acc);
+  } catch(e){
+    clearTimeout(slow);
+    if (!auto) chip.innerHTML = `הגישה לפסנתר נחסמה כאן. פתחי ב-Chrome את הכתובת: <a href="${PAGES}" target="_blank" rel="noopener">${PAGES}</a>`;
+  }
+}
+$('midiBtn').onclick = () => connectMidi(false);
+try { navigator.permissions?.query({name:'midi'}).then(p => { if (p.state === 'granted') connectMidi(true); }).catch(() => {}); } catch(e){}
+
+const QW = {KeyA:0, KeyW:1, KeyS:2, KeyE:3, KeyD:4, KeyF:5, KeyT:6, KeyG:7, KeyY:8, KeyH:9, KeyU:10, KeyJ:11, KeyK:12, KeyO:13, KeyL:14};
+let qwOct = 36;
+function qwertyKey(e, down){
+  if (!$('qwerty').checked) return false;
+  if (e.code === 'KeyZ' || e.code === 'KeyX'){ if (down && !e.repeat) qwOct = Math.max(24, Math.min(60, qwOct + (e.code === 'KeyX' ? 12 : -12))); return true; }
+  if (!(e.code in QW)) return false;
+  e.preventDefault();
+  if (e.repeat) return true;
+  const n = qwOct + QW[e.code];
+  down ? noteOn(n, 0.8, e.timeStamp) : noteOff(n, e.timeStamp);
+  return true;
+}
+document.addEventListener('keyup', e => { if (!e.target.closest('select, input')) qwertyKey(e, false); });
+$('qwerty').onchange = () => { $('qwNote').hidden = !$('qwerty').checked; };
+
+/* ---------- bass: UI ---------- */
+const NN = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const secName = s => s === 'A' ? 'הבית' : 'הפזמון';
+const secTo = s => s === 'A' ? 'לבית' : 'לפזמון';
+function bassUI(){
+  const r = $('recBtn');
+  r.classList.toggle('armed', !!rec && rec.phase === 'armed');
+  r.classList.toggle('on', !!rec && rec.phase === 'rec');
+  r.textContent = !rec || rec.phase === 'closing' ? `הקלטת בס ${secTo(section)}`
+    : rec.phase === 'armed' ? 'מחכה לספירה… (לחיצה מבטלת)' : `מקליט ${secTo(rec.sec)}… (לחיצה מבטלת)`;
+  $('bassClear').textContent = `מחיקת הבס של ${secName(section)}`;
+  $('bassClear').disabled = !bass[section];
+  renderRoll();
+}
+let rollKey = null;
+function renderRoll(){
+  const L = rec && rec.phase === 'rec' && rec.sec === section ? {len: rec.len, spb: rec.spb, notes: rec.notes, live: true} : loopFor(section);
+  const box = $('roll'), ph = $('ph');
+  box.querySelectorAll(':scope > :not(.ph)').forEach(el => el.remove());
+  if (!L){ const d = document.createElement('div'); d.className = 'empty'; d.textContent = `עוד אין בס ${secTo(section)}. לוחצים על "הקלטת בס" ומנגנים ביד שמאל.`; box.appendChild(d); return; }
+  const beats = style.beats;
+  for (let b = 0; b < L.len; b++){ const d = document.createElement('div'); d.className = 'bl' + (b % beats === 0 ? ' bar' : ''); d.style.left = (b / L.len * 100) + '%'; box.appendChild(d); }
+  const ns = L.live ? L.notes : qNotes(L);
+  if (!ns.length){ const d = document.createElement('div'); d.className = 'empty'; d.textContent = L.live ? 'מקליט… נגני ביד שמאל' : 'הלופ ריק'; box.appendChild(d); return; }
+  const lo = Math.min(...ns.map(n => n.n)) - 1, hi = Math.max(...ns.map(n => n.n)) + 1, H = box.clientHeight || 120;
+  for (const n of ns){
+    const d = document.createElement('div'); d.className = 'nt';
+    d.style.left = (n.s / L.len * 100) + '%';
+    d.style.width = Math.max(0.6, (Math.min(n.e, L.len) - n.s) / L.len * 100) + '%';
+    d.style.top = ((hi - n.n) / Math.max(1, hi - lo) * (H - 14)) + 'px';
+    d.style.opacity = 0.55 + 0.45 * n.v;
+    d.textContent = NN[n.n % 12] + (Math.floor(n.n/12) - 1);
+    box.appendChild(d);
+  }
+  if (!L.live) store.set('bass', bass);
+}
+function bassFrame(){
+  const ph = $('ph');
+  if (rec && rec.phase === 'closing' && ctx && ctx.currentTime > rec.closeAt){ rec = null; store.set('bass', bass); bassUI(); }
+  if (!playing || !ctx){ ph.style.display = 'none'; return; }
+  const b = beatAt(ctx.currentTime);
+  const L = rec && rec.phase === 'rec' && rec.sec === section ? {len: rec.len} : loopFor(section);
+  if (b === null || b < 0 || !L){ ph.style.display = 'none'; return; }
+  const start = rec && rec.phase === 'rec' ? rec.start : secStartBeat;
+  const pos = (((b - start) % L.len) + L.len) % L.len;
+  ph.style.display = 'block'; ph.style.left = (pos / L.len * 100) + '%';
+}
+$('recBtn').onclick = toggleRec;
+$('bassClear').onclick = () => { bass[section] = null; qCache = new Map(); store.set('bass', bass); bassUI(); };
+$('quant').onchange = () => { qCache = new Map(); renderRoll(); };
+$('bassVol').oninput = () => { if (bassOut) bassOut.gain.setTargetAtTime(bassVolGain(), ctx.currentTime, 0.03); };
 
 applyStyleUI(); setBpm(bpm); syncSectionUI();
 })();
