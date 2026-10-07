@@ -179,7 +179,7 @@ kbd{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-b
 
   <section class="panel" aria-labelledby="bassH">
     <div class="head"><h2 id="bassH">בס</h2>
-      <span class="bassbar"><span class="chip" id="midiChip">פסנתר לא מחובר</span><button class="ghostbtn" id="midiBtn">חיבור פסנתר (MIDI)</button></span></div>
+      <span class="bassbar"><span class="chip" id="midiIn" hidden></span><span class="chip" id="midiChip">פסנתר לא מחובר</span><button class="ghostbtn" id="midiBtn">חיבור פסנתר (MIDI)</button></span></div>
     <div class="bassbar">
       <button class="recbtn" id="recBtn">הקלטת בס לבית</button>
       <label class="label">אורך
@@ -746,9 +746,20 @@ function inputTime(stamp){
   const ago = stamp ? Math.max(0, (performance.now() - stamp) / 1000) : 0;
   return ctx.currentTime - ago - lag;
 }
+function showIn(note, isBass){
+  const el = $('midiIn'); el.hidden = false;
+  const nm = NN[note % 12] + (Math.floor(note/12) - 1);
+  const muted = !ctx || ctx.state !== 'running';
+  el.textContent = muted ? `קיבלתי ${nm}, אבל הצליל כבוי. לחצי פעם אחת בכל מקום בעמוד`
+    : isBass ? `קיבלתי ${nm} · בס` : `קיבלתי ${nm} · יד ימין, לא נחשב בס (נמוך מ-${NN[+$('split').value % 12]}${Math.floor(+$('split').value/12)-1} בלבד)`;
+  el.classList.toggle('ok', !muted && isBass);
+}
 function noteOn(note, vel, stamp){
-  if (note >= +$('split').value) return;
-  initAudio(); if (ctx.state === 'suspended') ctx.resume();
+  const isBass = note < +$('split').value;
+  if (ctx && ctx.state === 'suspended') ctx.resume();
+  showIn(note, isBass);
+  if (!isBass) return;
+  initAudio();
   if ($('monitor').checked){ live[note]?.release(ctx.currentTime); live[note] = bassVoice(note, ctx.currentTime, vel); }
   recNoteOn(note, vel, inputTime(stamp));
 }
@@ -783,7 +794,9 @@ async function connectMidi(auto){
     if (!auto) chip.innerHTML = `הגישה לפסנתר נחסמה כאן. פתחי ב-Chrome את הכתובת: <a href="${PAGES}" target="_blank" rel="noopener">${PAGES}</a>`;
   }
 }
-$('midiBtn').onclick = () => connectMidi(false);
+$('midiBtn').onclick = () => { unlockAudio(); connectMidi(false); };
+function unlockAudio(){ initAudio(); if (ctx.state !== 'running') ctx.resume(); }
+['pointerdown','keydown'].forEach(ev => document.addEventListener(ev, unlockAudio, {capture: true}));
 try { navigator.permissions?.query({name:'midi'}).then(p => { if (p.state === 'granted') connectMidi(true); }).catch(() => {}); } catch(e){}
 
 const QW = {KeyA:0, KeyW:1, KeyS:2, KeyE:3, KeyD:4, KeyF:5, KeyT:6, KeyG:7, KeyY:8, KeyH:9, KeyU:10, KeyJ:11, KeyK:12, KeyO:13, KeyL:14};
