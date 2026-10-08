@@ -201,6 +201,19 @@ kbd{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-b
     <p class="note" id="bassHelp">איך זה עובד: מחברים את הפסנתר, לוחצים על "הקלטת בס", מחכים לספירה ומנגנים ביד שמאל. בסוף האורך שבחרת הבס מתחיל לחזור לבד, בכל טמפו שתבחרי. לבית ולפזמון יש בס נפרד. אם לפזמון עוד אין בס, מתנגן הבס של הבית.</p>
   </section>
 
+  <section class="panel" aria-labelledby="layerH">
+    <div class="head"><h2 id="layerH">גיטרה מעל יד ימין</h2><span class="chip" id="layerChip">כבויה</span></div>
+    <div class="bassopts" style="margin-top:0">
+      <label>צליל
+        <select id="layer"><option value="off">כבוי</option><option value="acoustic" selected>גיטרה אקוסטית</option><option value="nylon">גיטרה קלאסית (ניילון)</option><option value="electric">גיטרה חשמלית נקייה</option></select></label>
+      <label>אוקטבה
+        <select id="layerOct"><option value="-12">נמוך יותר</option><option value="0" selected>כמו שניגנתי</option><option value="12">גבוה יותר</option></select></label>
+      <label>עוצמת גיטרה <input type="range" id="layerVol" min="0" max="100" value="60"></label>
+      <label><input type="checkbox" id="strum" checked> פריטה באקורדים</label>
+    </div>
+    <p class="note">כל תו שתנגני ביד ימין (מעל נקודת הפיצול של הבס) יישמע גם בגיטרה, יחד עם הפסנתר. פדל הסוסטיין מחזיק גם את הגיטרה. "פריטה" מפזרת אקורד לרגע קצר, כמו יד על מיתרים.</p>
+  </section>
+
   <section class="panel" aria-labelledby="stylesH">
     <div class="head"><h2 id="stylesH">סגנון</h2><span class="label">החלפה בזמן נגינה נכנסת בתחילת התיבה הבאה</span></div>
     <div class="styles" id="styles"></div>
@@ -240,6 +253,7 @@ kbd{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-b
     <span><kbd>↑</kbd>/<kbd>↓</kbd> טמפו</span>
     <span id="qwNote" hidden>במצב מקלדת: <kbd>A</kbd>–<kbd>K</kbd> קלידים לבנים, <kbd>W</kbd><kbd>E</kbd><kbd>T</kbd><kbd>Y</kbd><kbd>U</kbd> שחורים, <kbd>Z</kbd>/<kbd>X</kbd> אוקטבה. T ו-F משמשים אז לנגינה.</span>
     <span id="kitNote">טוען ערכת תופים…</span>
+    <span>גיטרות: דגימות guitar-acoustic/nylon/electric מ-tonejs-instruments (CC-BY 3.0).</span>
     <span>בס: דגימות Electric Bass מ-tonejs-instruments (Nicholaus Brosowsky, רישיון CC-BY 3.0).</span>
   </footer>
 </main>
@@ -751,19 +765,20 @@ function showIn(note, isBass){
   const nm = NN[note % 12] + (Math.floor(note/12) - 1);
   const muted = !ctx || ctx.state !== 'running';
   el.textContent = muted ? `קיבלתי ${nm}, אבל הצליל כבוי. לחצי פעם אחת בכל מקום בעמוד`
-    : isBass ? `קיבלתי ${nm} · בס` : `קיבלתי ${nm} · יד ימין, לא נחשב בס (נמוך מ-${NN[+$('split').value % 12]}${Math.floor(+$('split').value/12)-1} בלבד)`;
-  el.classList.toggle('ok', !muted && isBass);
+    : isBass ? `קיבלתי ${nm} · בס` : `קיבלתי ${nm} · יד ימין` + ($('layer').value !== 'off' ? ' · גיטרה' : '');
+  el.classList.toggle('ok', !muted && (isBass || $('layer').value !== 'off'));
 }
 function noteOn(note, vel, stamp){
   const isBass = note < +$('split').value;
   if (ctx && ctx.state === 'suspended') ctx.resume();
   showIn(note, isBass);
-  if (!isBass) return;
+  if (!isBass){ layerOn(note, vel); return; }
   initAudio();
   if ($('monitor').checked){ live[note]?.release(ctx.currentTime); live[note] = bassVoice(note, ctx.currentTime, vel); }
   recNoteOn(note, vel, inputTime(stamp));
 }
 function noteOff(note, stamp){
+  layerOff(note);
   if (live[note]){ live[note].release(ctx.currentTime); delete live[note]; }
   if (ctx) recNoteOff(note, inputTime(stamp));
 }
@@ -772,6 +787,7 @@ function midiMsg(e){
   const [st, d1, d2] = e.data, cmd = st & 0xf0;
   if (cmd === 0x90 && d2 > 0) noteOn(d1, d2/127, e.timeStamp);
   else if (cmd === 0x80 || (cmd === 0x90 && d2 === 0)) noteOff(d1, e.timeStamp);
+  else if (cmd === 0xb0 && d1 === 64) setSustain(d2 >= 64);
 }
 function bindMidi(acc){
   const names = [];
@@ -865,6 +881,63 @@ $('recBtn').onclick = toggleRec;
 $('bassClear').onclick = () => { bass[section] = null; qCache = new Map(); store.set('bass', bass); bassUI(); };
 $('quant').onchange = () => { qCache = new Map(); renderRoll(); };
 $('bassVol').oninput = () => { if (bassOut) bassOut.gain.setTargetAtTime(bassVolGain(), ctx.currentTime, 0.03); };
+
+/* ---------- live guitar layer (right hand) ---------- */
+const GUITARS = {
+  acoustic: [38,41,44,47,50,53,56,59,62,65,68,71,74],
+  nylon:    [38,42,45,49,52,55,59,63,66,69,73,76,79,82],
+  electric: [40,45,48,51,54,57,60,63,66,69,72,75,78,81,84]
+};
+const GNAME = {acoustic:'גיטרה אקוסטית', nylon:'גיטרה קלאסית', electric:'גיטרה חשמלית'};
+const gBufs = {}; let layerOut = null, sustain = false, lastOn = 0, chordN = 0;
+const layerHeld = {}, layerPedal = new Set();
+async function loadLayer(kind){
+  const chip = $('layerChip');
+  if (kind === 'off'){ chip.textContent = 'כבויה'; chip.classList.remove('ok'); return; }
+  if (gBufs[kind]){ chip.textContent = GNAME[kind] + ' · מוכנה'; chip.classList.add('ok'); return; }
+  chip.textContent = 'טוענת ' + GNAME[kind] + '…'; chip.classList.remove('ok');
+  const dec = new (window.OfflineAudioContext || window.webkitOfflineAudioContext)(1, 1, 44100), set = {};
+  await Promise.all(GUITARS[kind].map(n => fetch(`guitar/${kind}/g${n}.mp3`).then(r => r.ok ? r.arrayBuffer() : Promise.reject())
+    .then(b => new Promise((ok, bad) => dec.decodeAudioData(b, ok, bad))).then(buf => { set[n] = buf; }).catch(() => {})));
+  if (!Object.keys(set).length){ chip.textContent = 'לא הצלחתי לטעון את הגיטרה'; return; }
+  gBufs[kind] = set;
+  if ($('layer').value === kind){ chip.textContent = GNAME[kind] + ' · מוכנה'; chip.classList.add('ok'); }
+}
+const layerVolGain = () => Math.pow(+$('layerVol').value/100, 1.5) * 1.2;
+function layerOn(note, vel){
+  const kind = $('layer').value, set = gBufs[kind];
+  if (kind === 'off' || !set) return;
+  initAudio();
+  if (!layerOut){ layerOut = ctx.createGain(); layerOut.gain.value = layerVolGain(); layerOut.connect(bus); }
+  const play = note + +$('layerOct').value;
+  let best = null, bd = 99;
+  for (const k in set){ const d = Math.abs(k - play); if (d < bd){ bd = d; best = +k; } }
+  const now = ctx.currentTime;
+  if (now - lastOn < 0.03) chordN++; else chordN = 0;
+  lastOn = now;
+  const t = now + ($('strum').checked ? Math.min(chordN, 6) * (0.012 + Math.random()*0.006) : 0);
+  const src = ctx.createBufferSource(); src.buffer = set[best];
+  src.playbackRate.value = Math.pow(2, (play - best)/12) * (1 + (Math.random()-0.5)*0.003);
+  const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1800 + 6000 * vel;
+  const g = ctx.createGain(), peak = 0.2 + 0.8 * Math.pow(vel, 1.3);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(peak, t + 0.004);
+  src.connect(lp); lp.connect(g); g.connect(layerOut); src.start(t);
+  layerHeld[note]?.release(); layerPedal.delete(layerHeld[note]);
+  layerHeld[note] = { release(){ const at = Math.max(ctx.currentTime, t + 0.02); g.gain.cancelScheduledValues(at); g.gain.setTargetAtTime(0.0001, at, 0.08); try { src.stop(at + 0.6); } catch(e){} } };
+}
+function layerOff(note){
+  const v = layerHeld[note]; if (!v) return;
+  delete layerHeld[note];
+  if (sustain) layerPedal.add(v); else v.release();
+}
+function setSustain(on){
+  sustain = on;
+  if (!on){ layerPedal.forEach(v => v.release()); layerPedal.clear(); }
+}
+$('layer').onchange = () => { store.set('layer', $('layer').value); loadLayer($('layer').value); };
+$('layerVol').oninput = () => { store.set('layerVol', $('layerVol').value); if (layerOut) layerOut.gain.setTargetAtTime(layerVolGain(), ctx.currentTime, 0.03); };
+$('layer').value = store.get('layer', 'acoustic'); $('layerVol').value = store.get('layerVol', 60);
+loadLayer($('layer').value);
 
 applyStyleUI(); setBpm(bpm); syncSectionUI();
 })();
