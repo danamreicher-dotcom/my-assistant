@@ -133,6 +133,16 @@ select{background:var(--surface-2);border:1px solid var(--line);border-radius:8p
 .chord{font-family:var(--mono);font-weight:700;font-size:26px;line-height:1;min-width:4ch;text-align:center;padding:6px 14px;border-radius:12px;background:var(--surface-2);border:1px solid var(--line);direction:ltr}
 .chord.flash{border-color:var(--bassnote);color:var(--bassnote)}
 .unlock{position:fixed;left:0;right:0;bottom:0;z-index:10;border:0;border-radius:0;padding:14px 18px calc(14px + env(safe-area-inset-bottom,0px));background:var(--rec);color:var(--surface);font:700 17px/1.3 var(--body);text-align:center;box-shadow:0 8px 24px -12px var(--rec)}
+.looprow{display:flex;gap:10px 14px;flex-wrap:wrap;align-items:center}
+.loopbtn{min-width:230px;border:2px solid var(--rec);background:var(--rec-soft);color:var(--rec);border-radius:14px;padding:16px 24px;font:700 19px/1.2 var(--body)}
+.loopbtn[data-s="armed"]{animation:blink 1s steps(2) infinite}
+.loopbtn[data-s="rec"]{background:var(--rec);color:var(--surface)}
+.loopbtn[data-s="play"]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.loopbtn[data-s="dub"]{border-color:var(--brass);background:var(--brass);color:var(--surface)}
+.loopbar{height:10px;border-radius:5px;background:var(--surface-2);border:1px solid var(--line);overflow:hidden;margin-top:14px;direction:ltr}
+.loopbar i{display:block;height:100%;width:0;background:var(--accent)}
+.looprow label{display:inline-flex;gap:6px;align-items:center;font-size:14px;color:var(--muted)}
+.looprow input[type=range]{width:110px}
 .note{font-size:13px;color:var(--muted);margin:10px 0 0}
 .note a{color:var(--accent)}
 footer{padding-bottom:70px;color:var(--muted);font-size:13px;display:flex;gap:6px 16px;flex-wrap:wrap}
@@ -179,6 +189,19 @@ kbd{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-b
         <label><input type="checkbox" id="lockTempo"> שמור טמפו בהחלפת סגנון</label>
       </div>
     </div>
+  </section>
+
+  <section class="panel" aria-labelledby="loopH">
+    <div class="head"><h2 id="loopH">לופר</h2><span class="chip" id="loopInfo">ריק</span></div>
+    <div class="looprow">
+      <button class="loopbtn" id="loopBtn" data-s="empty">● הקלטת לופ</button>
+      <button class="ghostbtn" id="loopUndo">ביטול שכבה אחרונה</button>
+      <button class="ghostbtn" id="loopClear">מחיקת הלופ</button>
+      <label><input type="checkbox" id="loopMute"> השתקת הלופ</label>
+      <label>עוצמת פסנתר <input type="range" id="pianoVol" min="0" max="100" value="80"></label>
+    </div>
+    <div class="loopbar"><i id="loopFill"></i></div>
+    <p class="note">מקש רווח = הכפתור הגדול. לחיצה ראשונה: ספירה ואז הקלטה. לחיצה שנייה: סוגרת את הלופ בסוף התיבה הקרובה, והוא מתחיל לחזור. לחיצה נוספת: מוסיפה שכבה, ועוד לחיצה עוצרת את ההוספה. הלופ מקליט את התווים משתי הידיים ומנגן אותם בצליל פסנתר מוקלט, בכל טמפו. האקורדים של יד שמאל בלופ ממשיכים להוביל את הבס החכם.</p>
   </section>
 
   <section class="panel" aria-labelledby="bassH">
@@ -260,14 +283,16 @@ kbd{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-b
   </section>
 
   <footer>
-    <span><kbd>רווח</kbd> נגן/עצור</span>
+    <span><kbd>רווח</kbd> לופר</span>
+    <span><kbd>Enter</kbd> נגן/עצור</span>
     <span><kbd>T</kbd> הקשה לטמפו</span>
     <span><kbd>F</kbd> פיל</span>
     <span><kbd>1</kbd>/<kbd>2</kbd> בית/פזמון</span>
     <span><kbd>↑</kbd>/<kbd>↓</kbd> טמפו</span>
     <span id="qwNote" hidden>במצב מקלדת: <kbd>A</kbd>–<kbd>K</kbd> קלידים לבנים, <kbd>W</kbd><kbd>E</kbd><kbd>T</kbd><kbd>Y</kbd><kbd>U</kbd> שחורים, <kbd>Z</kbd>/<kbd>X</kbd> אוקטבה. T ו-F משמשים אז לנגינה.</span>
-    <span>גרסה 9 (8.10)</span>
+    <span>גרסה 10 (8.10)</span>
     <span id="kitNote">טוען ערכת תופים…</span>
+    <span>פסנתר בלופר: Salamander Grand Piano דרך tonejs-instruments (CC-BY 3.0).</span>
     <span>גיטרות: דגימות guitar-acoustic/nylon/electric מ-tonejs-instruments (CC-BY 3.0).</span>
     <span>בס: דגימות Electric Bass מ-tonejs-instruments (Nicholaus Brosowsky, רישיון CC-BY 3.0).</span>
   </footer>
@@ -495,7 +520,7 @@ function startBar(){
   let crash = false;
   if (crashNext){ crash = true; crashNext = false; if (pendingSection){ section = pendingSection; pendingSection = null; barsIn = 0; secStartBeat = songBeat; } }
   if (pendingSection && !$('transFill').checked){ section = pendingSection; pendingSection = null; barsIn = 0; crash = true; secStartBeat = songBeat; }
-  recBarStart();
+  recBarStart(); loopBarStart();
   barsIn++;
   const auto = +$('autoFill').value;
   const doFill = fillReq || (pendingSection && $('transFill').checked) || (auto && barsIn % auto === 0);
@@ -519,7 +544,7 @@ function playStep(i, t){
       hit(k, Math.max(ctx.currentTime, when + jit), v);
     }
   }
-  if (bar.kind !== 'count') bassStep(t, i);
+  if (bar.kind !== 'count'){ loopStep(t); bassStep(t, i); }
   visQ.push({t: when, i, bar});
 }
 function tick(){
@@ -547,7 +572,7 @@ async function start(forceCount, noCount){
   if (playing) return;
   playing = true; stepIdx = 0; barsIn = 0; crashNext = false; fillReq = false; pendingSection = null;
   countLeft = noCount ? 0 : (forceCount || $('countIn').checked) ? 1 : 0;
-  songBeat = -countLeft * style.beats; secStartBeat = 0; anchors.length = 0;
+  songBeat = -countLeft * style.beats; secStartBeat = 0; anchors.length = 0; loopStart = 0; loopHeld.clear();
   nextTime = ctx.currentTime + 0.06; visQ.length = 0;
   tick(); $('play').classList.add('on');
   try { wake = await navigator.wakeLock?.request('screen'); } catch(e){}
@@ -557,6 +582,7 @@ function stop(){
   if (pendingStyle){ style = pendingStyle; pendingStyle = null; if (!$('lockTempo').checked) setBpm(style.bpm); applyStyleUI(); }
   if (pendingSection){ section = pendingSection; pendingSection = null; }
   if (rec) cancelRec();
+  loopOnStop();
   bar = null; visQ.length = 0; syncSectionUI(); renderGrid(pat(style, section), false); lightBeat(-1); setStatus('מוכן');
   try { wake?.release(); } catch(e){} wake = null;
 }
@@ -602,7 +628,7 @@ function frame(){
       setStatus(b.kind === 'count' ? '<b>ספירה…</b>' : b.kind === 'fill' ? '<b>פיל!</b>' : `${style.name} · ${nm}`);
     }
   }
-  bassFrame();
+  bassFrame(); loopFrame();
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
@@ -631,6 +657,7 @@ function syncSectionUI(){
   ['A','B'].forEach(s => { const b = $('sec'+s); b.setAttribute('aria-pressed', section === s); b.classList.toggle('pending', pendingSection === s); });
   $('fill').classList.toggle('queued', fillReq);
   bassUI();
+  loopUI();
 }
 function chooseSection(s){
   if (!playing){ section = s; pendingSection = null; syncSectionUI(); renderGrid(pat(style, section), false); return; }
@@ -665,7 +692,8 @@ document.addEventListener('keydown', e => {
   if (e.target.matches('input[type=range]') && e.key.startsWith('Arrow')) return;
   if (qwertyKey(e, true)) return;
   const k = e.key.toLowerCase();
-  if (e.code === 'Space'){ e.preventDefault(); playing ? stop() : start(); }
+  if (e.code === 'Space'){ e.preventDefault(); if (!e.repeat) loopPress(); }
+  else if (e.key === 'Enter' && !e.target.closest('button')){ e.preventDefault(); playing ? stop() : start(); }
   else if (e.code === 'KeyT' || k === 'א'){ tap(); }
   else if (e.code === 'KeyF' || k === 'כ'){ $('fill').click(); }
   else if (k === '1') chooseSection('A');
@@ -808,6 +836,7 @@ function showIn(note, isBass){
 }
 function noteOn(note, vel, stamp){
   const isBass = note < +$('split').value;
+  if (ctx) loopNoteOn(note, vel, inputTime(stamp));
   if (ctx && ctx.state === 'suspended') ctx.resume();
   showIn(note, isBass);
   if (!isBass){ layerOn(note, vel); return; }
@@ -818,6 +847,7 @@ function noteOn(note, vel, stamp){
 }
 function noteOff(note, stamp){
   layerOff(note);
+  if (ctx) loopNoteOff(note, inputTime(stamp));
   lhHeld.delete(note);
   if (live[note]){ live[note].release(ctx.currentTime); delete live[note]; }
   if (ctx) recNoteOff(note, inputTime(stamp));
@@ -827,7 +857,7 @@ function midiMsg(e){
   const [st, d1, d2] = e.data, cmd = st & 0xf0;
   if (cmd === 0x90 && d2 > 0) noteOn(d1, d2/127, e.timeStamp);
   else if (cmd === 0x80 || (cmd === 0x90 && d2 === 0)) noteOff(d1, e.timeStamp);
-  else if (cmd === 0xb0 && d1 === 64) setSustain(d2 >= 64);
+  else if (cmd === 0xb0 && d1 === 64){ setSustain(d2 >= 64); if (ctx) loopPedal(d2 >= 64, inputTime(e.timeStamp)); }
 }
 function bindMidi(acc){
   const names = [];
@@ -951,25 +981,30 @@ async function loadLayer(kind){
 }
 const layerVolGain = () => Math.pow(+$('layerVol').value/100, 1.5) * 1.2;
 function layerOn(note, vel){
-  const kind = $('layer').value, set = gBufs[kind];
-  if (kind === 'off' || !set) return;
+  const kind = $('layer').value;
+  if (kind === 'off' || !gBufs[kind]) return;
   initAudio();
-  if (!layerOut){ layerOut = ctx.createGain(); layerOut.gain.value = layerVolGain(); layerOut.connect(bus); }
-  const play = note + +$('layerOct').value;
-  let best = null, bd = 99;
-  for (const k in set){ const d = Math.abs(k - play); if (d < bd){ bd = d; best = +k; } }
   const now = ctx.currentTime;
   if (now - lastOn < 0.03) chordN++; else chordN = 0;
   lastOn = now;
   const t = now + ($('strum').checked ? Math.min(chordN, 6) * (0.012 + Math.random()*0.006) : 0);
+  const v = guitarVoice(note, vel, t, kind); if (!v) return;
+  layerHeld[note]?.release(); layerPedal.delete(layerHeld[note]);
+  layerHeld[note] = { release(){ v.release(ctx.currentTime); } };
+}
+function guitarVoice(note, vel, t, kind){
+  const set = gBufs[kind]; if (!set) return null;
+  if (!layerOut){ layerOut = ctx.createGain(); layerOut.gain.value = layerVolGain(); layerOut.connect(bus); }
+  const play = note + +$('layerOct').value;
+  let best = null, bd = 99;
+  for (const k in set){ const d = Math.abs(k - play); if (d < bd){ bd = d; best = +k; } }
   const src = ctx.createBufferSource(); src.buffer = set[best];
   src.playbackRate.value = Math.pow(2, (play - best)/12) * (1 + (Math.random()-0.5)*0.003);
   const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1800 + 6000 * vel;
   const g = ctx.createGain(), peak = 0.2 + 0.8 * Math.pow(vel, 1.3);
   g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(peak, t + 0.004);
   src.connect(lp); lp.connect(g); g.connect(layerOut); src.start(t);
-  layerHeld[note]?.release(); layerPedal.delete(layerHeld[note]);
-  layerHeld[note] = { release(){ const at = Math.max(ctx.currentTime, t + 0.02); g.gain.cancelScheduledValues(at); g.gain.setTargetAtTime(0.0001, at, 0.08); try { src.stop(at + 0.6); } catch(e){} } };
+  return { release(at){ at = Math.max(at, t + 0.02); g.gain.cancelScheduledValues(at); g.gain.setTargetAtTime(0.0001, at, 0.08); try { src.stop(at + 0.6); } catch(e){} } };
 }
 function layerOff(note){
   const v = layerHeld[note]; if (!v) return;
@@ -1014,7 +1049,7 @@ function detectChord(notes){
 function chordName(c){ return c ? NN[c.root] + Q[c.q][3] : '—'; }
 function chordSoon(){ clearTimeout(chordTimer); chordTimer = setTimeout(applyChord, 25); }
 function applyChord(){
-  const c = detectChord([...lhHeld]); if (!c) return;
+  const c = detectChord([...lhHeld, ...loopHeld.keys()]); if (!c) return;
   const changed = !chord || c.root !== chord.root || c.q !== chord.q;
   chord = c;
   const out = $('chordOut'); out.textContent = chordName(c);
@@ -1123,6 +1158,156 @@ $('laptop').onchange = () => { store.set('laptop', $('laptop').checked); if (amp
 $('modeSmart').onclick = () => { bassMode = 'smart'; applyBassMode(); };
 $('modeRec').onclick = () => { bassMode = 'rec'; applyBassMode(); };
 applyBassMode();
+
+/* ---------- looper: piano samples ---------- */
+const PIANO = [33,36,39,42,45,48,51,54,57,60,63,66,69,72,75,78,81,84,87,90,93,96,99,102,105,108];
+const pBufs = {}; let pianoOut = null;
+(async () => {
+  const dec = new (window.OfflineAudioContext || window.webkitOfflineAudioContext)(1, 1, 44100);
+  await Promise.all(PIANO.map(n => fetch(`piano/p${n}.mp3`).then(r => r.ok ? r.arrayBuffer() : Promise.reject())
+    .then(b => new Promise((ok, bad) => dec.decodeAudioData(b, ok, bad))).then(buf => { pBufs[n] = buf; }).catch(() => {})));
+})();
+const pianoVolGain = () => Math.pow(+$('pianoVol').value/100, 1.5) * 0.9;
+function pianoVoice(note, t, vel){
+  let best = null, bd = 99;
+  for (const k in pBufs){ const d = Math.abs(k - note); if (d < bd){ bd = d; best = +k; } }
+  if (best === null) return null;
+  if (!pianoOut){ pianoOut = ctx.createGain(); pianoOut.gain.value = pianoVolGain(); pianoOut.connect(bus); }
+  const src = ctx.createBufferSource(); src.buffer = pBufs[best];
+  src.playbackRate.value = Math.pow(2, (note - best)/12);
+  const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1500 + 9000 * vel * vel;
+  const g = ctx.createGain(), peak = (0.12 + 0.88 * Math.pow(vel, 1.6)) * (note > 84 ? 0.7 : 1);
+  g.gain.setValueAtTime(peak, t);
+  src.connect(lp); lp.connect(g); g.connect(pianoOut); src.start(t);
+  return { release(at){ at = Math.max(at, t + 0.03); g.gain.setTargetAtTime(0.0001, at, 0.12); try { src.stop(at + 1); } catch(e){} } };
+}
+
+/* ---------- looper: state ---------- */
+// loop = {len (beats), layers: [{g: guitar kind or 'off', notes: [{s, d, n, v}]}]}
+let loop = store.get('loop', null), loopState = loop ? 'play' : 'empty', loopStart = 0, cap = null;
+const loopHeld = new Map();   // left-hand loop notes sounding now → end time (feeds smart bass)
+const lmod = (x, m) => ((x % m) + m) % m;
+function saveLoop(){ store.set('loop', loop); }
+function loopPress(){
+  initAudio(); if (ctx.state !== 'running') ctx.resume();
+  if (loopState === 'empty'){ loopState = 'armed'; if (!playing) start(true); }
+  else if (loopState === 'armed'){ loopState = 'empty'; }
+  else if (loopState === 'rec') closeFirstLayer();
+  else if (loopState === 'play'){
+    if (!playing){ start(false, true); }
+    else { const layer = {g: $('layer').value, notes: []}; loop.layers.push(layer); cap = {layer, start: loopStart, len: loop.len, open: {}, ped: false, pend: []}; loopState = 'dub'; }
+  }
+  else if (loopState === 'dub') endDub();
+  loopUI();
+}
+function loopBarStart(){
+  if (loopState === 'armed'){
+    loopState = 'rec'; loopStart = songBeat;
+    cap = {layer: {g: $('layer').value, notes: []}, start: songBeat, len: null, open: {}, ped: false, pend: []};
+    loopUI();
+  }
+}
+function closeFirstLayer(){
+  const now = beatAt(ctx.currentTime) ?? songBeat, bars = Math.max(1, Math.round((now - cap.start) / style.beats));
+  const len = bars * style.beats;
+  cap.len = len;
+  cap.layer.notes.forEach(n => { n.s = lmod(n.s, len); n.d = Math.min(n.d, len); });
+  loop = {len, layers: [cap.layer]}; loopStart = cap.start;
+  cap.until = cap.start + len;   // a note played just before the boundary still lands in the loop
+  if (now < cap.until) cap.wrapUntil = cap.until; else cap.wrapUntil = now + 0.5;
+  loopState = 'play'; saveLoop();
+}
+function endDub(){
+  cap.until = (beatAt(ctx.currentTime) ?? songBeat) + 0.05;
+  loopState = 'play';
+  if (!cap.layer.notes.length) loop.layers.pop();
+  saveLoop();
+}
+function loopOnStop(){
+  if (loopState === 'armed' || loopState === 'rec'){ loopState = loop ? 'play' : 'empty'; cap = null; }
+  if (loopState === 'dub') endDub();
+  cap = null; loopHeld.clear(); loopUI();
+}
+function capturing(b){
+  if (!cap) return false;
+  if (loopState === 'rec' || loopState === 'dub') return true;
+  return cap.until !== undefined && b < (cap.wrapUntil ?? cap.until);
+}
+function loopNoteOn(note, vel, t){
+  const b = beatAt(t); if (b === null || !capturing(b)) return;
+  let rel = b - cap.start;
+  if (rel < 0 && rel > -0.5/style.spb) rel = 0;
+  if (rel < 0) return;
+  const n = {s: cap.len ? lmod(rel, cap.len) : rel, d: 0.25, n: note, v: vel, _abs: b};
+  cap.layer.notes.push(n); cap.open[note] = n;
+}
+function loopNoteOff(note, t){
+  if (!cap || !cap.open[note]) return;
+  const n = cap.open[note]; delete cap.open[note];
+  const b = beatAt(t); if (b === null) return;
+  if (cap.ped) { cap.pend.push(n); return; }
+  n.d = Math.max(0.05, Math.min(b - n._abs, cap.len || 64)); saveLoopSoon();
+}
+function loopPedal(on, t){
+  if (!cap) return;
+  cap.ped = on;
+  if (!on){ const b = beatAt(t); if (b !== null) cap.pend.forEach(n => { n.d = Math.max(0.05, Math.min(b - n._abs, cap.len || 64)); }); cap.pend = []; saveLoopSoon(); }
+}
+let saveT = null;
+function saveLoopSoon(){ if (loop){ clearTimeout(saveT); saveT = setTimeout(saveLoop, 500); } }
+
+/* ---------- looper: playback ---------- */
+function loopStep(t){
+  if (!loop || songBeat < 0 || $('loopMute').checked) return;
+  const sb = 60/bpm, stepLen = 1/style.spb, pos = lmod(songBeat - loopStart, loop.len);
+  const split = +$('split').value; let lhNew = false;
+  for (const [k, end] of loopHeld) if (end <= t) loopHeld.delete(k);
+  for (const layer of loop.layers){
+    for (const n of layer.notes){
+      let d = n.s - pos; if (d < -1e-6) d += loop.len;
+      if (d >= stepLen - 1e-6) continue;
+      const at = t + d * sb, end = at + n.d * sb;
+      pianoVoice(n.n, at, n.v)?.release(end);
+      if (n.n >= split && layer.g && layer.g !== 'off') guitarVoice(n.n, n.v, at, layer.g)?.release(end);
+      if (n.n < split){ loopHeld.set(n.n, end); lhNew = true; }
+    }
+  }
+  if (lhNew && bassMode === 'smart'){
+    const c = detectChord([...lhHeld, ...loopHeld.keys()]);
+    if (c && (!chord || c.root !== chord.root || c.q !== chord.q)){ chord = c; $('chordOut').textContent = chordName(c); }
+  }
+}
+
+/* ---------- looper: UI ---------- */
+function loopUI(){
+  const b = $('loopBtn'); b.dataset.s = loopState;
+  b.textContent = {empty:'● הקלטת לופ', armed:'מחכה לספירה… (ביטול)', rec:'מקליט… לחיצה סוגרת לופ', play: playing ? '▶ מנגן · לחיצה מוסיפה שכבה' : '▶ ניגון הלופ', dub:'מוסיף שכבה… לחיצה עוצרת'}[loopState];
+  const bars = loop ? loop.len / style.beats : 0;
+  const nb = Math.round(bars*10)/10, nl = loop ? loop.layers.length : 0;
+  $('loopInfo').textContent = loop ? `${nb === 1 ? 'תיבה אחת' : nb + ' תיבות'} · ${nl === 1 ? 'שכבה אחת' : nl + ' שכבות'}` : loopState === 'rec' ? 'מקליט' : 'ריק';
+  $('loopInfo').classList.toggle('ok', !!loop);
+  $('loopUndo').disabled = !loop; $('loopClear').disabled = !loop && loopState === 'empty';
+}
+function loopFrame(){
+  const f = $('loopFill');
+  if (!playing || !ctx){ f.style.width = '0'; return; }
+  const b = beatAt(ctx.currentTime); if (b === null || b < 0){ f.style.width = '0'; return; }
+  if (loopState === 'rec' && cap){ f.style.width = Math.min(100, (b - cap.start) / style.beats % 1 * 100) + '%'; f.style.background = 'var(--rec)'; return; }
+  f.style.background = loopState === 'dub' ? 'var(--brass)' : 'var(--accent)';
+  f.style.width = loop ? (lmod(b - loopStart, loop.len) / loop.len * 100) + '%' : '0';
+  if (cap && loopState === 'play' && cap.until !== undefined && b > (cap.wrapUntil ?? cap.until) + 1) cap = null;
+}
+$('loopBtn').onclick = loopPress;
+$('loopUndo').onclick = () => {
+  if (loopState === 'dub'){ loop.layers.pop(); cap = null; loopState = 'play'; }
+  else if (loop){ loop.layers.pop(); }
+  if (loop && !loop.layers.length){ loop = null; loopState = 'empty'; }
+  saveLoop(); loopUI();
+};
+$('loopClear').onclick = () => { loop = null; cap = null; loopState = 'empty'; loopHeld.clear(); saveLoop(); loopUI(); };
+$('pianoVol').oninput = () => { store.set('pianoVol', $('pianoVol').value); if (pianoOut) pianoOut.gain.setTargetAtTime(pianoVolGain(), ctx.currentTime, 0.03); };
+$('pianoVol').value = store.get('pianoVol', 80);
+loopUI();
 
 applyStyleUI(); setBpm(bpm); syncSectionUI();
 })();
