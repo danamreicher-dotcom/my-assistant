@@ -132,14 +132,16 @@ select{background:var(--surface-2);border:1px solid var(--line);border-radius:8p
 .roll .empty{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:14px;direction:rtl;text-align:center;padding:10px}
 .chord{font-family:var(--mono);font-weight:700;font-size:26px;line-height:1;min-width:4ch;text-align:center;padding:6px 14px;border-radius:12px;background:var(--surface-2);border:1px solid var(--line);direction:ltr}
 .chord.flash{border-color:var(--bassnote);color:var(--bassnote)}
+.unlock{position:fixed;left:0;right:0;bottom:0;z-index:10;border:0;border-radius:0;padding:14px 18px calc(14px + env(safe-area-inset-bottom,0px));background:var(--rec);color:var(--surface);font:700 17px/1.3 var(--body);text-align:center;box-shadow:0 8px 24px -12px var(--rec)}
 .note{font-size:13px;color:var(--muted);margin:10px 0 0}
 .note a{color:var(--accent)}
-footer{color:var(--muted);font-size:13px;display:flex;gap:6px 16px;flex-wrap:wrap}
+footer{padding-bottom:70px;color:var(--muted);font-size:13px;display:flex;gap:6px 16px;flex-wrap:wrap}
 kbd{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 5px;background:var(--surface)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
 <main class="app" dir="rtl" lang="he">
+  <button class="unlock" id="unlock">🔊 לחצי כאן פעם אחת כדי להפעיל צליל. Chrome לא מנגן עד שלוחצים בעמוד, ונגינה בפסנתר לא נחשבת.</button>
   <header>
     <h1>שותף קצב</h1>
     <p class="tag">מתופף שמלווה אותך בפסנתר. בוחרים סגנון, קובעים טמפו, מנגנים.</p>
@@ -264,6 +266,7 @@ kbd{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-b
     <span><kbd>1</kbd>/<kbd>2</kbd> בית/פזמון</span>
     <span><kbd>↑</kbd>/<kbd>↓</kbd> טמפו</span>
     <span id="qwNote" hidden>במצב מקלדת: <kbd>A</kbd>–<kbd>K</kbd> קלידים לבנים, <kbd>W</kbd><kbd>E</kbd><kbd>T</kbd><kbd>Y</kbd><kbd>U</kbd> שחורים, <kbd>Z</kbd>/<kbd>X</kbd> אוקטבה. T ו-F משמשים אז לנגינה.</span>
+    <span>גרסה 9 (8.10)</span>
     <span id="kitNote">טוען ערכת תופים…</span>
     <span>גיטרות: דגימות guitar-acoustic/nylon/electric מ-tonejs-instruments (CC-BY 3.0).</span>
     <span>בס: דגימות Electric Bass מ-tonejs-instruments (Nicholaus Brosowsky, רישיון CC-BY 3.0).</span>
@@ -349,6 +352,7 @@ function initAudio(){
   const rev = ctx.createConvolver(); rev.buffer = impulse(1.4, 3.2);
   revGain = ctx.createGain(); revGain.gain.value = room/100*0.55;
   bus.connect(rev); rev.connect(revGain); revGain.connect(comp);
+  ctx.onstatechange = () => syncUnlock?.();
   noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
   const d = noiseBuf.getChannelData(0); for (let i=0;i<d.length;i++) d[i] = Math.random()*2-1;
 }
@@ -532,8 +536,15 @@ function tick(){
 document.addEventListener('visibilitychange', () => { lookahead = document.hidden ? 1.2 : 0.12; });
 
 let wake = null;
+let pendingStart = null;
 async function start(forceCount, noCount){
-  initAudio(); if (ctx.state === 'suspended') await ctx.resume();
+  initAudio();
+  if (ctx.state !== 'running'){
+    ctx.resume();
+    await new Promise(r => setTimeout(r, 60));
+    if (ctx.state !== 'running'){ pendingStart = [forceCount, noCount]; syncUnlock(); setStatus('<b>לחצי על הפס האדום כדי להתחיל</b>'); return; }
+  }
+  if (playing) return;
   playing = true; stepIdx = 0; barsIn = 0; crashNext = false; fillReq = false; pendingSection = null;
   countLeft = noCount ? 0 : (forceCount || $('countIn').checked) ? 1 : 0;
   songBeat = -countLeft * style.beats; secStartBeat = 0; anchors.length = 0;
@@ -672,8 +683,21 @@ const bassBufs = {}; let bassOut = null;
   await Promise.all(BASS_NOTES.map(n => fetch(`bass/b${n}.mp3`).then(r => r.ok ? r.arrayBuffer() : Promise.reject())
     .then(b => new Promise((ok, bad) => dec.decodeAudioData(b, ok, bad))).then(buf => { bassBufs[n] = buf; }).catch(() => {})));
 })();
+let ampSend = null;
 function bassNode(){
-  if (!bassOut){ bassOut = ctx.createGain(); bassOut.gain.value = bassVolGain(); bassOut.connect(master); }
+  if (!bassOut){
+    bassOut = ctx.createGain(); bassOut.gain.value = bassVolGain(); bassOut.connect(master);
+    // laptop mode: saturate only the lows in parallel, keep the harmonics it creates (100 Hz-1.2 kHz)
+    const lo = ctx.createBiquadFilter(); lo.type = 'lowpass'; lo.frequency.value = 160;
+    const pre = ctx.createGain(); pre.gain.value = 6;
+    const sh = ctx.createWaveShaper(), n = 1024, curve = new Float32Array(n);
+    for (let i = 0; i < n; i++){ const x = i/(n-1)*2 - 1; curve[i] = Math.tanh(2.5*x); }
+    sh.curve = curve; sh.oversample = '4x';
+    const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 110;
+    const tone = ctx.createBiquadFilter(); tone.type = 'lowpass'; tone.frequency.value = 1200;
+    ampSend = ctx.createGain(); ampSend.gain.value = $('laptop').checked ? 0.32 : 0;
+    bassOut.connect(lo); lo.connect(pre); pre.connect(sh); sh.connect(hp); hp.connect(tone); tone.connect(ampSend); ampSend.connect(master);
+  }
   return bassOut;
 }
 const bassVolGain = () => Math.pow(+$('bassVol').value/100, 1.5) * 1.1;
@@ -686,16 +710,11 @@ function bassVoice(note, t, vel){
   let src;
   if (best !== null){ src = ctx.createBufferSource(); src.buffer = bassBufs[best]; src.playbackRate.value = Math.pow(2, (note - best)/12); }
   else { src = ctx.createOscillator(); src.type = 'triangle'; src.frequency.value = 440 * Math.pow(2, (note-69)/12); }
-  const lapt = $('laptop').checked;
-  if (lapt) lp.frequency.value = 2500 + 3000 * vel;
   src.connect(lp); lp.connect(g); g.connect(bassNode());
-  let src2 = null;
-  if (lapt && best !== null){ src2 = ctx.createBufferSource(); src2.buffer = src.buffer; src2.playbackRate.value = src.playbackRate.value * 2;
-    const g2 = ctx.createGain(); g2.gain.value = 0.55; src2.connect(g2); g2.connect(lp); src2.start(t); }
   const peak = 0.35 + 0.65 * vel;
   g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(peak, t + 0.006);
   src.start(t);
-  return { t, cancel(){ try { src.stop(); src2?.stop(); } catch(e){} }, release(at){ at = Math.max(at, t + 0.03); g.gain.cancelScheduledValues(at); g.gain.setValueAtTime(peak * 0.9, at); g.gain.exponentialRampToValueAtTime(0.0001, at + 0.09); try { src.stop(at + 0.12); src2?.stop(at + 0.12); } catch(e){} } };
+  return { t, cancel(){ try { src.stop(); } catch(e){} }, release(at){ at = Math.max(at, t + 0.03); g.gain.cancelScheduledValues(at); g.gain.setValueAtTime(peak * 0.9, at); g.gain.exponentialRampToValueAtTime(0.0001, at + 0.09); try { src.stop(at + 0.12); } catch(e){} } };
 }
 
 /* ---------- bass: loops per section ---------- */
@@ -832,7 +851,13 @@ async function connectMidi(auto){
   }
 }
 $('midiBtn').onclick = () => { unlockAudio(); connectMidi(false); };
-function unlockAudio(){ initAudio(); if (ctx.state !== 'running') ctx.resume(); }
+function unlockAudio(){
+  initAudio();
+  const go = () => { syncUnlock(); if (pendingStart && ctx.state === 'running'){ const a = pendingStart; pendingStart = null; if (!playing) start(...a); } };
+  if (ctx.state !== 'running') ctx.resume().then(go); else go();
+}
+function syncUnlock(){ $('unlock').hidden = !!ctx && ctx.state === 'running'; }
+$('unlock').onclick = unlockAudio;
 ['pointerdown','keydown'].forEach(ev => document.addEventListener(ev, unlockAudio, {capture: true}));
 try { navigator.permissions?.query({name:'midi'}).then(p => { if (p.state === 'granted') connectMidi(true); }).catch(() => {}); } catch(e){}
 
@@ -1094,7 +1119,7 @@ function applyBassMode(){
   store.set('bassMode', bassMode);
 }
 $('laptop').checked = store.get('laptop', true);
-$('laptop').onchange = () => store.set('laptop', $('laptop').checked);
+$('laptop').onchange = () => { store.set('laptop', $('laptop').checked); if (ampSend) ampSend.gain.setTargetAtTime($('laptop').checked ? 0.32 : 0, ctx.currentTime, 0.05); };
 $('modeSmart').onclick = () => { bassMode = 'smart'; applyBassMode(); };
 $('modeRec').onclick = () => { bassMode = 'rec'; applyBassMode(); };
 applyBassMode();
