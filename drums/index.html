@@ -130,6 +130,8 @@ select{background:var(--surface-2);border:1px solid var(--line);border-radius:8p
 .roll .nt{position:absolute;height:12px;border-radius:3px;background:var(--bassnote);font:600 9px/12px var(--mono);color:var(--surface);padding-inline:2px;overflow:hidden;white-space:nowrap}
 .roll .ph{position:absolute;top:0;bottom:0;width:2px;background:var(--brass);display:none}
 .roll .empty{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:14px;direction:rtl;text-align:center;padding:10px}
+.chord{font-family:var(--mono);font-weight:700;font-size:26px;line-height:1;min-width:4ch;text-align:center;padding:6px 14px;border-radius:12px;background:var(--surface-2);border:1px solid var(--line);direction:ltr}
+.chord.flash{border-color:var(--bassnote);color:var(--bassnote)}
 .note{font-size:13px;color:var(--muted);margin:10px 0 0}
 .note a{color:var(--accent)}
 footer{color:var(--muted);font-size:13px;display:flex;gap:6px 16px;flex-wrap:wrap}
@@ -180,7 +182,14 @@ kbd{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-b
   <section class="panel" aria-labelledby="bassH">
     <div class="head"><h2 id="bassH">בס</h2>
       <span class="bassbar"><span class="chip" id="midiIn" hidden></span><span class="chip" id="midiChip">פסנתר לא מחובר</span><button class="ghostbtn" id="midiBtn">חיבור פסנתר (MIDI)</button></span></div>
-    <div class="bassbar">
+    <div class="bassbar" style="margin-bottom:14px">
+      <div class="seg" role="group" aria-label="סוג בס">
+        <button id="modeSmart" aria-pressed="true">בס חכם</button>
+        <button id="modeRec" aria-pressed="false">בס שהקלטתי</button>
+      </div>
+      <span class="label" id="chordLbl">אקורד</span><span class="chord" id="chordOut" aria-live="polite">—</span>
+    </div>
+    <div class="bassbar recOnly">
       <button class="recbtn" id="recBtn">הקלטת בס לבית</button>
       <label class="label">אורך
         <select id="loopLen"><option value="1">תיבה אחת</option><option value="2">2 תיבות</option><option value="4" selected>4 תיבות</option><option value="8">8 תיבות</option></select></label>
@@ -188,17 +197,18 @@ kbd{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-b
         <select id="quant"><option value="1" selected>מלא</option><option value="0.5">חצי</option><option value="0">כבוי</option></select></label>
       <button class="ghostbtn" id="bassClear">מחיקת הבס של הבית</button>
     </div>
-    <div class="roll" id="roll"><div class="ph" id="ph"></div></div>
+    <div class="roll recOnly" id="roll"><div class="ph" id="ph"></div></div>
     <div class="bassopts">
       <label>יד שמאל עד
         <select id="split"><option value="55">G3</option><option value="60" selected>C4 (דו אמצעי)</option><option value="64">E4</option><option value="128">כל המקלדת</option></select></label>
       <label>אוקטבה
         <select id="bassOct"><option value="-12">נמוך יותר</option><option value="0" selected>כמו שניגנתי</option><option value="12">גבוה יותר</option></select></label>
       <label>עוצמת בס <input type="range" id="bassVol" min="0" max="100" value="80"></label>
-      <label><input type="checkbox" id="monitor" checked> לשמוע את הבס בזמן שאני מנגנת</label>
+      <label class="recOnly"><input type="checkbox" id="monitor" checked> לשמוע את הבס בזמן שאני מנגנת</label>
       <label><input type="checkbox" id="qwerty"> לנגן בס במקלדת המחשב</label>
     </div>
-    <p class="note" id="bassHelp">איך זה עובד: מחברים את הפסנתר, לוחצים על "הקלטת בס", מחכים לספירה ומנגנים ביד שמאל. בסוף האורך שבחרת הבס מתחיל לחזור לבד, בכל טמפו שתבחרי. לבית ולפזמון יש בס נפרד. אם לפזמון עוד אין בס, מתנגן הבס של הבית.</p>
+    <p class="note smartOnly">בס חכם: מנגנים אקורד ביד שמאל (מתחת לדו האמצעי), והבס ממציא קו שמתאים לסגנון ולתופים. האקורד נשאר עד שמנגנים אקורד חדש, אז אפשר לנגן אקורד, לשחרר ולהמשיך ביד ימין. בפזמון הבס זז יותר. במצב מקלדת, קליד אחד = אקורד מז׳ור.</p>
+    <p class="note recOnly" id="bassHelp">איך זה עובד: מחברים את הפסנתר, לוחצים על "הקלטת בס", מחכים לספירה ומנגנים ביד שמאל. בסוף האורך שבחרת הבס מתחיל לחזור לבד, בכל טמפו שתבחרי. לבית ולפזמון יש בס נפרד. אם לפזמון עוד אין בס, מתנגן הבס של הבית.</p>
   </section>
 
   <section class="panel" aria-labelledby="layerH">
@@ -485,6 +495,7 @@ function startBar(){
   const doFill = fillReq || (pendingSection && $('transFill').checked) || (auto && barsIn % auto === 0);
   if (doFill){ fillReq = false; crashNext = true; bar = {pat: makeFill(style, pat(style, section)), kind:'fill', crash}; }
   else bar = {pat: pat(style, section), kind:'main', crash};
+  bar.walk = Math.floor(Math.random() * 5);
   syncSectionUI();
 }
 function playStep(i, t){
@@ -502,7 +513,7 @@ function playStep(i, t){
       hit(k, Math.max(ctx.currentTime, when + jit), v);
     }
   }
-  if (bar.kind !== 'count') bassStep(t);
+  if (bar.kind !== 'count') bassStep(t, i);
   visQ.push({t: when, i, bar});
 }
 function tick(){
@@ -677,7 +688,7 @@ function bassVoice(note, t, vel){
   const peak = 0.35 + 0.65 * vel;
   g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(peak, t + 0.006);
   src.start(t);
-  return { release(at){ at = Math.max(at, t + 0.03); g.gain.cancelScheduledValues(at); g.gain.setValueAtTime(peak * 0.9, at); g.gain.exponentialRampToValueAtTime(0.0001, at + 0.09); try { src.stop(at + 0.12); } catch(e){} } };
+  return { t, cancel(){ try { src.stop(); } catch(e){} }, release(at){ at = Math.max(at, t + 0.03); g.gain.cancelScheduledValues(at); g.gain.setValueAtTime(peak * 0.9, at); g.gain.exponentialRampToValueAtTime(0.0001, at + 0.09); try { src.stop(at + 0.12); } catch(e){} } };
 }
 
 /* ---------- bass: loops per section ---------- */
@@ -694,8 +705,9 @@ function qNotes(L){
   return out;
 }
 let qCache = new Map();
-function bassStep(t){
+function bassStep(t, i){
   if (songBeat < 0) return;
+  if (bassMode === 'smart'){ smartStep(t, i); return; }
   if (rec && rec.phase === 'rec' && rec.sec === section) return;
   const L = loopFor(section); if (!L || !L.notes.length) return;
   let Q = qCache.get(L); if (!Q){ Q = qNotes(L); qCache.set(L, Q); }
@@ -765,7 +777,7 @@ function showIn(note, isBass){
   const nm = NN[note % 12] + (Math.floor(note/12) - 1);
   const muted = !ctx || ctx.state !== 'running';
   el.textContent = muted ? `קיבלתי ${nm}, אבל הצליל כבוי. לחצי פעם אחת בכל מקום בעמוד`
-    : isBass ? `קיבלתי ${nm} · בס` : `קיבלתי ${nm} · יד ימין` + ($('layer').value !== 'off' ? ' · גיטרה' : '');
+    : isBass ? `קיבלתי ${nm} · ` + (bassMode === 'smart' ? 'אקורד' : 'בס') : `קיבלתי ${nm} · יד ימין` + ($('layer').value !== 'off' ? ' · גיטרה' : '');
   el.classList.toggle('ok', !muted && (isBass || $('layer').value !== 'off'));
 }
 function noteOn(note, vel, stamp){
@@ -774,11 +786,13 @@ function noteOn(note, vel, stamp){
   showIn(note, isBass);
   if (!isBass){ layerOn(note, vel); return; }
   initAudio();
+  if (bassMode === 'smart'){ lhHeld.add(note); chordSoon(); return; }
   if ($('monitor').checked){ live[note]?.release(ctx.currentTime); live[note] = bassVoice(note, ctx.currentTime, vel); }
   recNoteOn(note, vel, inputTime(stamp));
 }
 function noteOff(note, stamp){
   layerOff(note);
+  lhHeld.delete(note);
   if (live[note]){ live[note].release(ctx.currentTime); delete live[note]; }
   if (ctx) recNoteOff(note, inputTime(stamp));
 }
@@ -938,6 +952,142 @@ $('layer').onchange = () => { store.set('layer', $('layer').value); loadLayer($(
 $('layerVol').oninput = () => { store.set('layerVol', $('layerVol').value); if (layerOut) layerOut.gain.setTargetAtTime(layerVolGain(), ctx.currentTime, 0.03); };
 $('layer').value = store.get('layer', 'acoustic'); $('layerVol').value = store.get('layerVol', 60);
 loadLayer($('layer').value);
+
+/* ---------- smart bass: chord detection ---------- */
+const Q = {   // third, fifth, seventh (null = none), label
+  maj:[4,7,null,''], min:[3,7,null,'m'], dim:[3,6,null,'dim'], aug:[4,8,null,'+'], sus4:[5,7,null,'sus4'], sus2:[2,7,null,'sus2'],
+  dom7:[4,7,10,'7'], maj7:[4,7,11,'maj7'], m7:[3,7,10,'m7'], m7b5:[3,6,10,'m7b5'], dim7:[3,6,9,'dim7'], six:[4,7,9,'6'], m6:[3,7,9,'m6'], pow:[7,7,null,'5']
+};
+const TPL = [
+  ['maj',[0,4,7]],['min',[0,3,7]],['dim',[0,3,6]],['aug',[0,4,8]],['sus4',[0,5,7]],['sus2',[0,2,7]],
+  ['dom7',[0,4,7,10]],['dom7',[0,4,10]],['maj7',[0,4,7,11]],['maj7',[0,4,11]],['m7',[0,3,7,10]],['m7',[0,3,10]],
+  ['m7b5',[0,3,6,10]],['dim7',[0,3,6,9]],['six',[0,4,7,9]],['m6',[0,3,7,9]],['pow',[0,7]],['maj',[0,4]],['min',[0,3]],['maj',[0]]
+];
+const lhHeld = new Set(); let chord = null, chordTimer = null;
+function detectChord(notes){
+  if (!notes.length) return null;
+  const low = Math.min(...notes) % 12, pcs = [...new Set(notes.map(n => n % 12))];
+  let best = null;
+  for (const r of pcs){
+    const rel = new Set(pcs.map(p => (p - r + 12) % 12));
+    for (const [q, iv] of TPL){
+      let hit = 0; iv.forEach(x => { if (rel.has(x)) hit++; });
+      const miss = iv.length - hit, extra = rel.size - hit;
+      const score = hit*2 - miss*1.5 - extra*2 + (r === low ? 0.6 : 0) + iv.length*0.01;
+      if (!best || score > best.score) best = {root: r, q, score};
+    }
+  }
+  return best;
+}
+function chordName(c){ return c ? NN[c.root] + Q[c.q][3] : '—'; }
+function chordSoon(){ clearTimeout(chordTimer); chordTimer = setTimeout(applyChord, 25); }
+function applyChord(){
+  const c = detectChord([...lhHeld]); if (!c) return;
+  const changed = !chord || c.root !== chord.root || c.q !== chord.q;
+  chord = c;
+  const out = $('chordOut'); out.textContent = chordName(c);
+  out.classList.add('flash'); setTimeout(() => out.classList.remove('flash'), 180);
+  if (changed && ctx) retarget();
+}
+
+/* ---------- smart bass: degrees & grooves ---------- */
+function degNote(deg){
+  const q = Q[chord.q], r = 28 + ((chord.root - 4 + 12) % 12);   // root lands in E1..D#2
+  const third = chord.q === 'pow' ? 7 : q[0];
+  const sev = q[2] ?? (chord.q === 'min' ? 10 : 9);
+  switch (deg){
+    case 'R': return r;
+    case 'O': return r + 12;
+    case '5': return r + q[1];
+    case 'L': return r + q[1] - 12;
+    case '3': return r + third;
+    case '2': return r + 2;
+    case '6': return r + 9;
+    case 'b7': return r + (q[2] ?? 10);
+    case 'W': return r + sev;
+    case '7': return r + (q[2] ?? 12);
+  }
+  return r;
+}
+// [step, degree, length in steps, velocity] on each style's grid
+const SB = {
+  pop:   {A:[[0,'R',6,1],[6,'R',2,.7],[8,'R',6,.9],[14,'5',2,.7]],
+          B:[[0,'R',3,1],[3,'R',1,.6],[4,'O',2,.8],[6,'R',2,.7],[8,'R',3,.9],[11,'R',1,.6],[12,'5',2,.8],[14,'O',2,.7]]},
+  rock:  {A:[0,2,4,6,8,10,12,14].map((s,i) => [s,'R',2,i%2?.75:1]),
+          B:[[0,'R',2,1],[2,'R',2,.75],[4,'R',2,.95],[6,'R',2,.75],[8,'R',2,1],[10,'R',2,.75],[12,'5',2,.95],[14,'O',2,.8]]},
+  ballad:{A:[[0,'R',8,.9],[8,'5',8,.75]],
+          B:[[0,'R',6,.9],[6,'R',2,.6],[8,'5',4,.8],[12,'O',4,.75]]},
+  funk:  {A:[[0,'R',2,1],[3,'O',1,.8],[6,'R',1,.7],[7,'R',1,.6],[10,'R',2,.9],[13,'O',1,.8],[14,'5',1,.7]],
+          B:[[0,'R',2,1],[2,'O',1,.6],[3,'R',1,.8],[6,'O',1,.8],[7,'5',1,.6],[10,'R',1,.9],[11,'R',1,.6],[13,'O',1,.8],[14,'b7',1,.7]]},
+  hiphop:{A:[[0,'R',6,1],[7,'R',2,.7],[10,'R',4,.85]],
+          B:[[0,'R',6,1],[7,'R',2,.7],[10,'R',3,.85],[13,'5',3,.75]]},
+  disco: {A:[0,2,4,6,8,10,12,14].map((s,i) => [s, i%2 ? 'O' : 'R', 2, i%2 ? .8 : 1]),
+          B:[[0,'R',2,1],[2,'O',2,.8],[4,'R',2,1],[6,'O',2,.8],[8,'R',2,1],[10,'O',2,.8],[12,'5',2,1],[14,'O',2,.8]]},
+  shuffle:{A:[[0,'R',3,1],[3,'5',3,.8],[6,'6',3,.9],[9,'5',3,.8]],
+          B:[[0,'R',2,1],[2,'3',1,.6],[3,'5',2,.85],[5,'6',1,.6],[6,'b7',2,.9],[8,'6',1,.6],[9,'5',2,.85],[11,'3',1,.6]]},
+  jazz:  {walk:[['R','3','5','W'],['R','2','3','5'],['R','5','O','5'],['R','O','W','5'],['R','3','2','L']]},
+  bossa: {A:[[0,'R',3,1],[3,'L',1,.75],[4,'L',3,.9],[7,'R',1,.7],[8,'R',3,1],[11,'L',1,.75],[12,'L',3,.9],[15,'R',1,.7]],
+          B:[[0,'R',3,1],[3,'5',1,.75],[4,'L',3,.9],[7,'R',1,.7],[8,'R',3,1],[11,'5',1,.75],[12,'O',3,.9],[15,'5',1,.7]]},
+  reggae:{A:[[0,'R',3,1],[3,'5',1,.7],[5,'3',1,.75],[6,'R',2,.8]],
+          B:[[0,'R',2,1],[2,'R',1,.7],[4,'5',2,.8],[6,'O',1,.7],[7,'5',1,.7]]},
+  waltz: {A:[[0,'R',4,1],[4,'5',4,.7],[8,'5',4,.7]],
+          B:[[0,'R',4,1],[4,'5',4,.7],[8,'O',4,.75]]},
+  six8:  {A:[[0,'R',3,1],[3,'5',3,.75]],
+          B:[[0,'R',2,1],[2,'5',1,.6],[3,'O',2,.8],[5,'5',1,.6]]},
+  maqsum:{A:[[0,'R',2,1],[3,'R',1,.7],[4,'R',2,.9],[6,'5',2,.7]],
+          B:[[0,'R',1,1],[1,'5',1,.6],[3,'R',1,.8],[4,'R',2,.9],[6,'O',1,.7],[7,'5',1,.6]]}
+};
+function smartEvents(){
+  const g = SB[style.id];
+  if (g.walk){
+    const w = g.walk[bar.walk ?? 0], spb = style.spb;
+    return w.map((d, b) => [b*spb, d, spb, b % 2 ? .8 : 1]);
+  }
+  return g[section] || g.A;
+}
+let pendingBass = [];
+function smartStep(t, i){
+  if (!chord || (rec && rec.phase === 'rec')) return;
+  const n = steps(style), fillFrom = bar.kind === 'fill' ? n - Math.min(n, style.spb*2) : n;
+  if (i >= fillFrom) return;
+  const sd = 60/bpm/style.spb, legato = style.id === 'ballad' || style.id === 'six8' ? 1 : 0.9;
+  for (const [st, deg, len, v] of smartEvents()){
+    if (st !== i) continue;
+    let at = t;
+    if (style.spb !== 3 && i % 2 === 1) at += (swing/50 - 1) * sd;
+    at += (Math.random() - 0.5) * 0.008 * human/100;
+    const vel = Math.min(1, v * (1 + (Math.random() - 0.5) * 0.15 * human/100) * 0.9);
+    const dur = Math.min(len, fillFrom - i) * sd * legato;
+    const ev = {t: at, end: at + dur, deg, vel, note: degNote(deg)};
+    ev.voice = bassVoice(ev.note, at, vel); ev.voice.release(ev.end);
+    pendingBass.push(ev);
+  }
+  if (pendingBass.length > 64) pendingBass = pendingBass.filter(e => e.end > ctx.currentTime - 1);
+}
+// chord changed: re-voice notes that haven't started yet, and the one that just started
+function retarget(){
+  const now = ctx.currentTime;
+  for (const ev of pendingBass){
+    const nn = degNote(ev.deg); if (nn === ev.note || ev.end <= now) continue;
+    if (ev.t > now){ ev.voice.cancel(); ev.note = nn; ev.voice = bassVoice(nn, ev.t, ev.vel); ev.voice.release(ev.end); }
+    else if (now - ev.t < 0.2 && ev.end - now > 0.05){ ev.voice.release(now); ev.note = nn; ev.voice = bassVoice(nn, now, ev.vel); ev.voice.release(ev.end); }
+  }
+}
+
+/* ---------- bass mode ---------- */
+let bassMode = store.get('bassMode', 'smart');
+function applyBassMode(){
+  if (bassMode === 'smart' && rec) cancelRec();
+  $('modeSmart').setAttribute('aria-pressed', bassMode === 'smart');
+  $('modeRec').setAttribute('aria-pressed', bassMode === 'rec');
+  document.querySelectorAll('.recOnly').forEach(el => el.hidden = bassMode !== 'rec');
+  document.querySelectorAll('.smartOnly').forEach(el => el.hidden = bassMode !== 'smart');
+  $('chordOut').hidden = $('chordLbl').hidden = bassMode !== 'smart';
+  store.set('bassMode', bassMode);
+}
+$('modeSmart').onclick = () => { bassMode = 'smart'; applyBassMode(); };
+$('modeRec').onclick = () => { bassMode = 'rec'; applyBassMode(); };
+applyBassMode();
 
 applyStyleUI(); setBpm(bpm); syncSectionUI();
 })();
