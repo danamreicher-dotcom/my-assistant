@@ -188,6 +188,7 @@ kbd{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-b
         <button id="modeRec" aria-pressed="false">בס שהקלטתי</button>
       </div>
       <span class="label" id="chordLbl">אקורד</span><span class="chord" id="chordOut" aria-live="polite">—</span>
+      <label class="label smartOnly" style="display:inline-flex;gap:6px;align-items:center"><input type="checkbox" id="autoStart" checked style="accent-color:var(--accent)"> התופים מתחילים עם האקורד הראשון</label>
     </div>
     <div class="bassbar recOnly">
       <button class="recbtn" id="recBtn">הקלטת בס לבית</button>
@@ -204,6 +205,7 @@ kbd{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-b
       <label>אוקטבה
         <select id="bassOct"><option value="-12">נמוך יותר</option><option value="0" selected>כמו שניגנתי</option><option value="12">גבוה יותר</option></select></label>
       <label>עוצמת בס <input type="range" id="bassVol" min="0" max="100" value="80"></label>
+      <label><input type="checkbox" id="laptop"> אני ברמקולים של המחשב</label>
       <label class="recOnly"><input type="checkbox" id="monitor" checked> לשמוע את הבס בזמן שאני מנגנת</label>
       <label><input type="checkbox" id="qwerty"> לנגן בס במקלדת המחשב</label>
     </div>
@@ -530,10 +532,10 @@ function tick(){
 document.addEventListener('visibilitychange', () => { lookahead = document.hidden ? 1.2 : 0.12; });
 
 let wake = null;
-async function start(forceCount){
+async function start(forceCount, noCount){
   initAudio(); if (ctx.state === 'suspended') await ctx.resume();
   playing = true; stepIdx = 0; barsIn = 0; crashNext = false; fillReq = false; pendingSection = null;
-  countLeft = (forceCount || $('countIn').checked) ? 1 : 0;
+  countLeft = noCount ? 0 : (forceCount || $('countIn').checked) ? 1 : 0;
   songBeat = -countLeft * style.beats; secStartBeat = 0; anchors.length = 0;
   nextTime = ctx.currentTime + 0.06; visQ.length = 0;
   tick(); $('play').classList.add('on');
@@ -684,11 +686,16 @@ function bassVoice(note, t, vel){
   let src;
   if (best !== null){ src = ctx.createBufferSource(); src.buffer = bassBufs[best]; src.playbackRate.value = Math.pow(2, (note - best)/12); }
   else { src = ctx.createOscillator(); src.type = 'triangle'; src.frequency.value = 440 * Math.pow(2, (note-69)/12); }
+  const lapt = $('laptop').checked;
+  if (lapt) lp.frequency.value = 2500 + 3000 * vel;
   src.connect(lp); lp.connect(g); g.connect(bassNode());
+  let src2 = null;
+  if (lapt && best !== null){ src2 = ctx.createBufferSource(); src2.buffer = src.buffer; src2.playbackRate.value = src.playbackRate.value * 2;
+    const g2 = ctx.createGain(); g2.gain.value = 0.55; src2.connect(g2); g2.connect(lp); src2.start(t); }
   const peak = 0.35 + 0.65 * vel;
   g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(peak, t + 0.006);
   src.start(t);
-  return { t, cancel(){ try { src.stop(); } catch(e){} }, release(at){ at = Math.max(at, t + 0.03); g.gain.cancelScheduledValues(at); g.gain.setValueAtTime(peak * 0.9, at); g.gain.exponentialRampToValueAtTime(0.0001, at + 0.09); try { src.stop(at + 0.12); } catch(e){} } };
+  return { t, cancel(){ try { src.stop(); src2?.stop(); } catch(e){} }, release(at){ at = Math.max(at, t + 0.03); g.gain.cancelScheduledValues(at); g.gain.setValueAtTime(peak * 0.9, at); g.gain.exponentialRampToValueAtTime(0.0001, at + 0.09); try { src.stop(at + 0.12); src2?.stop(at + 0.12); } catch(e){} } };
 }
 
 /* ---------- bass: loops per section ---------- */
@@ -988,11 +995,12 @@ function applyChord(){
   const out = $('chordOut'); out.textContent = chordName(c);
   out.classList.add('flash'); setTimeout(() => out.classList.remove('flash'), 180);
   if (changed && ctx) retarget();
+  if (!playing && bassMode === 'smart' && $('autoStart').checked) start(false, true);
 }
 
 /* ---------- smart bass: degrees & grooves ---------- */
 function degNote(deg){
-  const q = Q[chord.q], r = 28 + ((chord.root - 4 + 12) % 12);   // root lands in E1..D#2
+  const q = Q[chord.q], r = 33 + ((chord.root - 9 + 12) % 12);   // root lands in A1..G#2
   const third = chord.q === 'pow' ? 7 : q[0];
   const sev = q[2] ?? (chord.q === 'min' ? 10 : 9);
   switch (deg){
@@ -1085,6 +1093,8 @@ function applyBassMode(){
   $('chordOut').hidden = $('chordLbl').hidden = bassMode !== 'smart';
   store.set('bassMode', bassMode);
 }
+$('laptop').checked = store.get('laptop', true);
+$('laptop').onchange = () => store.set('laptop', $('laptop').checked);
 $('modeSmart').onclick = () => { bassMode = 'smart'; applyBassMode(); };
 $('modeRec').onclick = () => { bassMode = 'rec'; applyBassMode(); };
 applyBassMode();
