@@ -90,6 +90,27 @@ If there is a child, a baby or a teenager in the frame (anyone under 18):
 - In the questionnaire, the wardrobe question is mandatory when there is a child.
 - At the end of every prompt with a child, add: --no nude, shirtless, bare skin, swimsuit, underwear (this is the only parameter allowed).
 
+### Precise age (people tend to come out older)
+
+- Image models age characters up. "boy" or "girl" alone comes out as roughly 5-7 years old.
+- Under 4: always write "toddler" (or "baby" under a year), never just "boy" or "girl".
+- Aim slightly below the requested age: for 3, write "2-3 year old toddler"; for 5, write "4-5 year old child".
+- Describe body proportions that match the age. For a toddler: large head relative to small body, short neck, chubby round baby cheeks, tiny button nose, small baby teeth, fine wispy hair, short chubby arms.
+- In prompts with children, add "older child" to the `--no` list.
+
+### Innocence and realism in children
+
+- Every prompt with a child must look like a real moment, not a doll and not an advertisement: candid, unretouched, natural imperfections, slightly messy hair, a real spontaneous expression.
+- Avoid words that turn a child into a doll or make them look older: perfect, flawless, model, posing, glamorous, beauty, makeup, stylish.
+- Add, as fits: innocent eyes, genuine spontaneous expression, candid documentary portrait, natural unposed moment.
+
+### Ethnicity and nationality
+
+- A country name alone ("Israeli", "Italian") barely moves the model. Translate it into physical features and context that fit, without stereotypes.
+- Israeli: warm olive Mediterranean complexion, dark brown eyes, thick dark eyebrows, dark brown curly hair (or the hair color the user asked for, with matching warm tones). Add "Middle Eastern Mediterranean features" and "Israeli".
+- Watch for contradictions: red hair plus freckles pulls toward an Irish or Scandinavian look. If the user wants red hair and an Israeli look, write "deep auburn copper hair" together with "warm olive complexion" and "dark brown eyes", and keep freckles to a minimum.
+- If the scene has a background, add local context (a Tel Aviv balcony, Jerusalem stone, a Mediterranean beach in winter). In a plain studio, rely on facial features.
+
 ### Absolutely forbidden
 
 - Never write `--ar`, never write `--p`, never write `--v6` (or any other `--v`). No other parameters, except `--no` in prompts with children.
